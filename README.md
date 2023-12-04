@@ -6,3 +6,16 @@
    - awk is still relevant in 2023
 - Day 2
    - `stringstream`s are convenient
+- Day 3
+   - autoformatting is still broken
+   ```cpp
+   for(std::array<int,2>d:std::array<std::array<int,2>,8>{
+      {
+         {
+            -1,-1
+         },{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}
+      }}){
+      void;
+   }
+   ```
+   - `using enum` exists
