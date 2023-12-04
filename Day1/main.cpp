@@ -109,4 +109,29 @@ int main(){
                first+=((last=i/2)+1)*(first==-1);
    std::cout<<sum<<'\n';
 }
+#elif MYCHOICE==2
+#include<fstream>
+#include<iostream>
+#include<map>
+#include<string>
+#include<regex>
+int main(){
+   std::map<std::string,int>digits={{"one",1},{"two",2},{"three",3},{"four",4},{"five",5},{"six",6},{"seven",7},{"eight",8},{"nine",9}};
+   int sum=0;
+   std::ifstream input("input");
+   for(std::string line;std::getline(input,line);){
+      std::smatch first_match;
+      std::regex_search(line,first_match,std::regex("[0-9]|one|two|three|four|five|six|seven|eight|nine"));
+      std::string firstString=first_match.str(0);
+      int first=digits.contains(firstString)?digits[firstString]:std::stoi(firstString);
+
+      std::smatch last_match;
+      std::regex_search(line,last_match,std::regex(".*([0-9]|one|two|three|four|five|six|seven|eight|nine)"));
+      std::string lastString=last_match.str(1);
+      int last=digits.contains(lastString)?digits[lastString]:std::stoi(lastString);
+
+      sum+=first*10+last;
+   }
+   std::cout<<sum<<'\n';
+}
 #endif
