@@ -19,3 +19,5 @@
    }
    ```
    - `using enum` exists
+- Day 5
+   - start-end slices are much easier to reason with than start-range
