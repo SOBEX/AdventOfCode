@@ -23,7 +23,7 @@ double getDurationSeconds(t_t start,t_t end){
 }
 using llint=long long int;
 
-#define MYCHOICE 2
+#define MYCHOICE 3
 #if MYCHOICE==0
 #include<algorithm>
 #include<numeric>
@@ -300,6 +300,238 @@ llint solve2(const std::vector<std::string> &input){
          break;
       }
       sum+=innerSum;
+   }
+   return sum;
+}
+#elif MYCHOICE==3
+#include<charconv>
+llint solve1(const std::vector<std::string> &input){
+   llint sum=0ll;
+   for(const std::string &line:input){
+      llint n=std::count(line.cbegin(),line.cend(),' ')+1;
+      const char *begin=line.data();
+      const char *end=begin+line.size();
+      llint number;
+      switch(n){
+      default:
+         std::cerr<<"Encountered polynomial of grade "<<(n-1)<<'\n';
+         break;
+      case 21:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=21*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=210*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=1330*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=5985*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=20349*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=54264*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=116280*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=203490*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=293930*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=352716*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=352716*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=293930*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=203490*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=116280*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=54264*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=20349*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=5985*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=1330*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=210*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=21*number;
+         break;
+      case 6:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=6*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=15*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=20*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=15*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=6*number;
+         break;
+      case 5:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=5*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=10*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=10*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=5*number;
+         break;
+      case 4:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=4*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=6*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=4*number;
+         break;
+      case 3:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=3*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=3*number;
+         break;
+      case 2:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=2*number;
+         break;
+      case 1:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         break;
+      case 0:
+         break;
+      }
+   }
+   return sum;
+}
+llint solve2(const std::vector<std::string> &input){
+   llint sum=0ll;
+   for(const std::string &line:input){
+      llint n=std::count(line.cbegin(),line.cend(),' ')+1;
+      const char *begin=line.data();
+      const char *end=begin+line.size();
+      llint number;
+      switch(n){
+      default:
+         std::cerr<<"Encountered polynomial of grade "<<(n-1)<<'\n';
+         break;
+      case 21:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=21*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=210*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=1330*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=5985*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=20349*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=54264*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=116280*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=203490*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=293930*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=352716*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=352716*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=293930*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=203490*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=116280*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=54264*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=20349*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=5985*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=1330*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=210*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=21*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         break;
+      case 6:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=6*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=15*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=20*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=15*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=6*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=number;
+         break;
+      case 5:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=5*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=10*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=10*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=5*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         break;
+      case 4:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=4*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=6*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=4*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=number;
+         break;
+      case 3:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=3*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=3*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         break;
+      case 2:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=2*number;
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum-=number;
+         break;
+      case 1:
+         begin=std::from_chars(begin,end,number).ptr+1;
+         sum+=number;
+         break;
+      case 0:
+         break;
+      }
    }
    return sum;
 }
