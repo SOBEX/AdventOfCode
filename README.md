@@ -25,3 +25,6 @@
    - `algorithm`s are convenient and make adding parallel execution easy
 - Day 8
    - inputs are too nice
+- Day 9
+   - `from_chars` is much faster than `istream`s, but needs setup
+   - `consteval from_chars` is not real, it cannot hurt you https://godbolt.org/z/73Yqs5cz9
