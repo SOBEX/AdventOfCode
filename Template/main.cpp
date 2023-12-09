@@ -38,6 +38,11 @@ llint solve2(const std::vector<std::string> &input){
    return sum;
 }
 int main(){
+   constexpr bool doExample1=true;
+   constexpr bool doInput1=true;
+   constexpr bool doExample2=true;
+   constexpr bool doInput2=true;
+
    std::vector<std::string>example1={
       "",
       ""
@@ -53,13 +58,13 @@ int main(){
    }
 
    t_t time0=getTime();
-   auto answer1example=solve1(example1);
+   auto answer1example=doExample1?solve1(example1):-1;
    t_t time1=getTime();
-   auto answer1input=solve1(input);
+   auto answer1input=doInput1?solve1(input):-1;
    t_t time2=getTime();
-   auto answer2example=solve2(example2);
+   auto answer2example=doExample2?solve2(example2):-1;
    t_t time3=getTime();
-   auto answer2input=solve2(input);
+   auto answer2input=doInput2?solve2(input):-1;
    t_t time4=getTime();
 
    double duration0=getDurationMilliseconds(time0,time1);
