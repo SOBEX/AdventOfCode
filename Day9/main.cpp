@@ -23,6 +23,8 @@ double getDurationSeconds(t_t start,t_t end){
 }
 using llint=long long int;
 
+#define MYCHOICE 1
+#if MYCHOICE==0
 #include<algorithm>
 #include<numeric>
 std::vector<llint>parseLine(const std::string &_line){
@@ -71,6 +73,77 @@ llint solve2(const std::vector<std::string> &input){
    }
    return sum;
 }
+#elif MYCHOICE==1
+#include<algorithm>
+#include<charconv>
+#include<functional>
+#include<iterator>
+#include<numeric>
+std::vector<llint> parseLine(const std::string &line){
+   std::vector<llint>numbers;
+   numbers.reserve(std::count(line.cbegin(),line.cend(),' ')+1);
+   const char *begin=line.data();
+   const char *end=begin+line.size();
+   while(begin!=end){
+      llint number;
+      auto [ptr,ec]=std::from_chars(begin,end,number);
+      if(ec==std::errc()){
+         numbers.push_back(number);
+         begin=ptr;
+         if(begin!=end){
+            begin++;
+         }
+      } else{
+         break;
+      }
+   }
+   return numbers;
+}
+llint getNextForward(std::vector<llint>n){
+   n.insert(n.begin(),0ll);
+   auto begin=std::next(n.begin());
+   auto end=n.end();
+   while(std::any_of(begin,end,[](llint i){return i!=0;})){
+      std::adjacent_difference(begin,end,n.begin());
+      end--;
+   }
+   return std::accumulate(end,n.end(),0ll);
+}
+llint getPreviousForward(std::vector<llint>n){
+   auto begin=n.begin();
+   auto end=n.end();
+   while(std::any_of(begin,end,[](llint i){return i!=0;})){
+      std::adjacent_difference(begin,end,begin);
+      begin++;
+   }
+   return std::transform_reduce(n.begin(),begin,0ll,std::plus(),[i=0](llint x)mutable{return i++%2==0?x:-x;});
+}
+llint getNextBackward(std::vector<llint>n){
+   auto rbegin=n.rbegin();
+   auto rend=n.rend();
+   while(std::any_of(rbegin,rend,[](llint i){return i!=0;})){
+      std::adjacent_difference(rbegin,rend,rbegin);
+      rbegin++;
+   }
+   return std::transform_reduce(n.rbegin(),rbegin,0ll,std::plus(),[i=0](llint x)mutable{return i++%2==0?x:-x;});
+}
+llint getPreviousBackward(std::vector<llint>n){
+   n.insert(n.end(),0ll);
+   auto rbegin=std::next(n.rbegin());
+   auto rend=n.rend();
+   while(std::any_of(rbegin,rend,[](llint i){return i!=0;})){
+      std::adjacent_difference(rbegin,rend,n.rbegin());
+      rend--;
+   }
+   return std::accumulate(rend,n.rend(),0ll);
+}
+llint solve1(const std::vector<std::string> &input){
+   return std::transform_reduce(input.cbegin(),input.cend(),0ll,std::plus(),[](const std::string &line){return getNextBackward(parseLine(line));});
+}
+llint solve2(const std::vector<std::string> &input){
+   return std::transform_reduce(input.cbegin(),input.cend(),0ll,std::plus(),[](const std::string &line){return getPreviousForward(parseLine(line));});
+}
+#endif
 int main(){
    constexpr bool doExample1=true;
    constexpr bool doInput1=true;
