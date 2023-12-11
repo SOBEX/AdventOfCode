@@ -1,3 +1,4 @@
+#include<array>
 #include<chrono>
 #include<iostream>
 #include<fstream>
@@ -9,16 +10,16 @@ t_t getTime(){
    return std::chrono::high_resolution_clock::now();
 }
 using d_t=std::chrono::nanoseconds;
-double getDurationNanoseconds(t_t start,t_t end){
+double getDurationNs(t_t start,t_t end){
    return std::chrono::duration_cast<d_t>(end-start).count()/1.0;
 }
-double getDurationMicroseconds(t_t start,t_t end){
+double getDurationUs(t_t start,t_t end){
    return std::chrono::duration_cast<d_t>(end-start).count()/1'000.0;
 }
-double getDurationMilliseconds(t_t start,t_t end){
+double getDurationMs(t_t start,t_t end){
    return std::chrono::duration_cast<d_t>(end-start).count()/1'000'000.0;
 }
-double getDurationSeconds(t_t start,t_t end){
+double getDurationS(t_t start,t_t end){
    return std::chrono::duration_cast<d_t>(end-start).count()/1'000'000'000.0;
 }
 using llint=long long int;
@@ -38,6 +39,7 @@ llint solve2(const std::vector<std::string> &input){
    return sum;
 }
 int main(){
+   constexpr llint doWarming=0;
    constexpr bool doExample1=true;
    constexpr bool doInput1=true;
    constexpr bool doExample2=true;
@@ -57,6 +59,12 @@ int main(){
       input.push_back(line);
    }
 
+   llint result=0;
+   for(llint warming=0;warming<doWarming;warming++){
+      result=(doExample1?solve1(example1):-1)+(doInput1?solve1(input):-1)
+         +(doExample2?solve2(example2):-1)+(doInput2?solve2(input):-1);
+   }
+
    t_t time0=getTime();
    auto answer1example=doExample1?solve1(example1):-1;
    t_t time1=getTime();
@@ -67,13 +75,8 @@ int main(){
    auto answer2input=doInput2?solve2(input):-1;
    t_t time4=getTime();
 
-   double duration0=getDurationMilliseconds(time0,time1);
-   double duration1=getDurationMilliseconds(time1,time2);
-   double duration2=getDurationMilliseconds(time2,time3);
-   double duration3=getDurationMilliseconds(time3,time4);
-
-   std::cout<<"Example 1 took "<<duration0<<"ms: "<<answer1example<<'\n';
-   std::cout<<"Input   1 took "<<duration1<<"ms: "<<(answer1input)<<'\n';
-   std::cout<<"Example 2 took "<<duration2<<"ms: "<<answer2example<<'\n';
-   std::cout<<"Input   2 took "<<duration3<<"ms: "<<(answer2input)<<'\n';
+   std::cout<<"Example 1 took "<<getDurationMs(time0,time1)<<"ms: "<<answer1example<<'\n';
+   std::cout<<"Input   1 took "<<getDurationMs(time1,time2)<<"ms: "<<(answer1input)<<'\n';
+   std::cout<<"Example 2 took "<<getDurationMs(time2,time3)<<"ms: "<<answer2example<<'\n';
+   std::cout<<"Input   2 took "<<getDurationMs(time3,time4)<<"ms: "<<(answer2input)<<'\n';
 }
