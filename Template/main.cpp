@@ -52,11 +52,13 @@ int main(){
 
    std::vector<std::string>example2=example1;
 
-   std::ifstream inputFile("input");
    std::vector<std::string>input;
-   std::string line;
-   while(std::getline(inputFile,line)){
-      input.push_back(line);
+   {
+      std::ifstream inputFile("input");
+      std::string line;
+      while(std::getline(inputFile,line)){
+         input.push_back(line);
+      }
    }
 
    llint result=0;
