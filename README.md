@@ -31,3 +31,6 @@
 - Day 12
    - `span<const T>` vs `basic_string_view<T>`
    - memoization in C++ is hard
+- Day 13
+   - writing code fast is easier than writing fast code
+   - passing functions as template parameters
