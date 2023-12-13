@@ -28,3 +28,6 @@
 - Day 9
    - `from_chars` is much faster than `istream`s, but needs setup
    - `consteval from_chars` is not real, it cannot hurt you https://godbolt.org/z/73Yqs5cz9
+- Day 12
+   - `span<const T>` vs `basic_string_view<T>`
+   - memoization in C++ is hard
