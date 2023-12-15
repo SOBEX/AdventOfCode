@@ -24,20 +24,17 @@ double getDurationS(t_t start,t_t end){
 }
 using llint=long long int;
 
+#define MYCHOICE 1
+#if MYCHOICE==0
 #include<map>
-#include<span>
 #include<tuple>
 enum class Spring: char{
    Operational='.',Damaged='#',Unknown='?'
 };
 using Springs=std::vector<Spring>;
 using Numbers=std::vector<llint>;
-using StringSpan=std::span<const Spring>;
-using NumberSpan=std::span<const llint>;
-using MemoryKeyLin=std::tuple<const Spring*,size_t,const llint*,size_t,llint,llint,bool>;
-using MemoryLin=std::map<MemoryKeyLin,llint>;
-using MemoryKeyLog=std::tuple<const Spring*,size_t,const llint*,size_t>;
-using MemoryLog=std::map<MemoryKeyLog,llint>;
+using MemoryKey=std::tuple<llint,llint,bool>;
+using Memory=std::map<MemoryKey,llint>;
 struct Row{
    Springs springs;
    Numbers numbers;
@@ -89,59 +86,186 @@ Row complicateRow(const Row &original){
    row.numbers.insert(row.numbers.end(),original.numbers.begin(),original.numbers.end());
    return row;
 }
-llint countRowLin(MemoryLin&memoryLin,StringSpan springs,NumberSpan numbers,llint iSpring=0,llint iNumber=0,bool overrideDamaged=false){
-   MemoryKeyLin key{springs.data(),springs.size(),numbers.data(),numbers.size(),iSpring,iNumber,overrideDamaged};
-   auto result=memoryLin.find(key);
-   if(result!=memoryLin.end()){
+llint countRow(Memory &memory,const Row &row,llint iSpring=0,llint iNumber=0,bool overrideDamaged=false){
+   MemoryKey key{iSpring,iNumber,overrideDamaged};
+   auto result=memory.find(key);
+   if(result!=memory.end()){
       return result->second;
    }
-   if(iSpring==springs.size()){
-      return memoryLin.insert({key,iNumber==numbers.size()?1:0}).first->second;
+   if(iSpring==row.springs.size()){
+      return memory.insert({key,iNumber==row.numbers.size()?1:0}).first->second;
    }
-   llint number=numbers[iNumber];
+   llint number=row.numbers[iNumber];
    if(overrideDamaged){
       iSpring++;
       number--;
       goto damaged;
    }
-   switch(springs[iSpring]){
+   switch(row.springs[iSpring]){
    case Spring::Operational:
-      return memoryLin.insert({key,countRowLin(memoryLin,springs,numbers,iSpring+1,iNumber)}).first->second;
+      return memory.insert({key,countRow(memory,row,iSpring+1,iNumber)}).first->second;
    case Spring::Damaged:
 damaged:
-      if(iSpring+number>springs.size()){
-         return memoryLin.insert({key,0}).first->second;
+      if(iSpring+number>row.springs.size()){
+         return memory.insert({key,0}).first->second;
       }
       for(llint j=iSpring;j<iSpring+number;j++){
-         if(springs[j]==Spring::Operational){
-            return memoryLin.insert({key,0}).first->second;
+         if(row.springs[j]==Spring::Operational){
+            return memory.insert({key,0}).first->second;
          }
       }
-      if(iSpring+number==springs.size()){
-         return memoryLin.insert({key,countRowLin(memoryLin,springs,numbers,iSpring+number,iNumber+1)}).first->second;
+      if(iSpring+number==row.springs.size()){
+         return memory.insert({key,countRow(memory,row,iSpring+number,iNumber+1)}).first->second;
       }
-      if(springs[iSpring+number]==Spring::Damaged){
-         return memoryLin.insert({key,0}).first->second;
+      if(row.springs[iSpring+number]==Spring::Damaged){
+         return memory.insert({key,0}).first->second;
       }
-      return memoryLin.insert({key,countRowLin(memoryLin,springs,numbers,iSpring+number+1,iNumber+1)}).first->second;
+      return memory.insert({key,countRow(memory,row,iSpring+number+1,iNumber+1)}).first->second;
    case Spring::Unknown:
-      return memoryLin.insert({key,countRowLin(memoryLin,springs,numbers,iSpring+1,iNumber)+countRowLin(memoryLin,springs,numbers,iSpring,iNumber,true)}).first->second;
+      return memory.insert({key,countRow(memory,row,iSpring+1,iNumber)+countRow(memory,row,iSpring,iNumber,true)}).first->second;
    }
 }
-llint countRowLog(MemoryLog&memoryLog,MemoryLin&memoryLin,StringSpan springs,NumberSpan numbers){
-   MemoryKeyLog key{springs.data(),springs.size(),numbers.data(),numbers.size()};
-   auto result=memoryLog.find(key);
-   if(result!=memoryLog.end()){
-      return result->second;
+llint solve1(const std::vector<std::string> &input){
+   llint sum=0;
+   for(const std::string &line:input){
+      Row row=parseLine(line);
+      Memory memory;
+      sum+=countRow(memory,row);
    }
-   if(numbers.size()<=2){
-      return memoryLog.insert({key,countRowLin(memoryLin,springs,numbers)}).first->second;
+   return sum;
+}
+llint solve2(const std::vector<std::string> &input){
+   llint sum=0;
+   for(const std::string &line:input){
+      Row row=parseLine(line);
+      row=complicateRow(row);
+      Memory memory;
+      sum+=countRow(memory,row);
+   }
+   return sum;
+}
+#elif MYCHOICE==1
+#include<span>
+enum class Spring: char{
+   Operational='.',Damaged='#',Unknown='?'
+};
+using Springs=std::vector<Spring>;
+using Numbers=std::vector<llint>;
+using SpringSpan=std::span<const Spring>;
+using NumberSpan=std::span<const llint>;
+struct Row{
+   Springs springs;
+   Numbers numbers;
+};
+Row parseLine(const std::string &line){
+   Row row;
+   llint number=0;
+   for(char c:line){
+      switch(c){
+      case '.':
+      case '#':
+      case '?':
+         row.springs.push_back(Spring(c));
+         break;
+      case ' ':
+         break;
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+         number*=10;
+         number+=c-'0';
+         break;
+      case ',':
+         row.numbers.push_back(number);
+         number=0;
+         break;
+      }
+   }
+   if(number!=0){
+      row.numbers.push_back(number);
+   }
+   return row;
+}
+Row complicateRow(const Row &original){
+   Row row;
+   row.springs.reserve(original.springs.size()*5+4);
+   row.numbers.reserve(original.numbers.size()*5);
+   for(llint i=0;i<4;i++){
+      row.springs.insert(row.springs.end(),original.springs.begin(),original.springs.end());
+      row.numbers.insert(row.numbers.end(),original.numbers.begin(),original.numbers.end());
+      row.springs.push_back(Spring::Unknown);
+   }
+   row.springs.insert(row.springs.end(),original.springs.begin(),original.springs.end());
+   row.numbers.insert(row.numbers.end(),original.numbers.begin(),original.numbers.end());
+   return row;
+}
+llint countRow0(SpringSpan springs){
+   for(Spring spring:springs){
+      if(spring==Spring::Damaged){
+         return false;
+      }
+   }
+   return true;
+}
+llint countRow1(SpringSpan springs,llint length){
+   llint rangeLeft=0;
+   while(springs[rangeLeft]==Spring::Operational){
+      rangeLeft++;
+   }
+   llint rangeRight=springs.size()-1;
+   while(springs[rangeRight]==Spring::Operational){
+      rangeRight--;
+   }
+   llint count=0;
+   for(llint i=rangeLeft;i+length<=rangeRight+1;i++){
+      bool possible=true;
+      for(llint j=i;j<i+length;j++){
+         if(springs[j]==Spring::Operational){
+            possible=false;
+            i=j;
+            break;
+         }
+      }
+      if(possible){
+         for(llint j=rangeLeft;j<i;j++){
+            if(springs[j]==Spring::Damaged){
+               possible=false;
+               break;
+            }
+         }
+      }
+      if(possible){
+         for(llint j=i+length;j<=rangeRight;j++){
+            if(springs[j]==Spring::Damaged){
+               possible=false;
+               break;
+            }
+         }
+      }
+      if(possible){
+         count++;
+      }
+   }
+   return count;
+}
+llint countRow(SpringSpan springs,NumberSpan numbers){
+   if(numbers.size()==0){
+      return countRow0(springs);
+   }
+   if(numbers.size()==1){
+      return countRow1(springs,numbers[0]);
    }
    llint mid=numbers.size()/2;
-   std::span<const llint>lefts=numbers.first(mid);
-   std::span<const llint>rights=numbers.last(numbers.size()-mid-1);
+   NumberSpan leftNumbers=numbers.first(mid);
    llint rangeLeft=0;
-   for(llint number:lefts){
+   for(llint number:leftNumbers){
       for(llint j=rangeLeft;j<rangeLeft+number;j++){
          if(springs[j]==Spring::Operational){
             rangeLeft=j+1;
@@ -149,8 +273,9 @@ llint countRowLog(MemoryLog&memoryLog,MemoryLin&memoryLin,StringSpan springs,Num
       }
       rangeLeft+=number+1;
    }
+   NumberSpan rightNumbers=numbers.last(numbers.size()-mid-1);
    llint rangeRight=springs.size()-1;
-   for(auto it=rights.rbegin();it!=rights.rend();it++){
+   for(auto it=rightNumbers.rbegin();it!=rightNumbers.rend();it++){
       llint number=*it;
       for(llint j=rangeRight;j>rangeRight-number;j--){
          if(springs[j]==Spring::Operational){
@@ -169,43 +294,43 @@ llint countRowLog(MemoryLog&memoryLog,MemoryLin&memoryLin,StringSpan springs,Num
             break;
          }
       }
-      if(possible&&i-1!=-1&&springs[i-1]==Spring::Damaged){
+      if(possible&&0<=i-1&&springs[i-1]==Spring::Damaged){
          possible=false;
       }
-      if(possible&&i+numbers[mid]!=springs.size()&&springs[i+numbers[mid]]==Spring::Damaged){
+      if(possible&&i+numbers[mid]<springs.size()&&springs[i+numbers[mid]]==Spring::Damaged){
          possible=false;
       }
       if(possible){
-         sum+=countRowLog(memoryLog,memoryLin,springs.first(i-1),lefts)*countRowLog(memoryLog,memoryLin,springs.last(springs.size()-i-numbers[mid]-1),rights);
+         llint left=countRow(springs.first(i-1),leftNumbers);
+         if(i+numbers[mid]==springs.size()){
+            sum+=left;
+         } else{
+            llint right=countRow(springs.last(springs.size()-i-numbers[mid]-1),rightNumbers);
+            sum+=left*right;
+         }
       }
    }
-   return memoryLog.insert({key,sum}).first->second;
-}
-llint countRow(const Row &row){
-   MemoryLin memoryLin;
-   if(row.numbers.size()<=2){
-      return countRowLin(memoryLin,row.springs,row.numbers);
-   }
-   MemoryLog memoryLog;
-   return countRowLog(memoryLog,memoryLin,row.springs,row.numbers);
+   return sum;
 }
 llint solve1(const std::vector<std::string> &input){
    llint sum=0;
    for(const std::string &line:input){
       Row row=parseLine(line);
-      sum+=countRow(row);
+      sum+=countRow(row.springs,row.numbers);
    }
    return sum;
 }
-llint solve2(const std::vector<std::string> &input){
+llint solve2(const std::span<std::string> &input){
    llint sum=0;
    for(const std::string &line:input){
       Row row=parseLine(line);
       row=complicateRow(row);
-      sum+=countRow(row);
+      sum+=countRow(row.springs,row.numbers);
    }
    return sum;
 }
+
+#endif
 int main(){
    constexpr llint doWarming=10;
    constexpr bool doExample1=true;
