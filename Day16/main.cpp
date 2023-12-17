@@ -94,10 +94,45 @@ Board parseInput(const std::vector<std::string> &input){
    }
    return board;
 }
+constexpr bool visualize=false;
+constexpr bool repeatInput=false;
+std::ofstream visualization=visualize?std::ofstream("visualization.txt"):std::ofstream();
 void addBeam(const Board &board,Bitmask &isEnergized,Position current,Direction direction){
 start:
    if(!(0<=current.y&&current.y<board.size()&&0<=current.x&&current.x<board[current.y].size())){
       return;
+   }
+   if(visualize){
+      for(llint y=0;y<board.size();y++){
+         for(llint x=0;x<board.size();x++){
+            if(current.y==y&&current.x==x){
+               using enum Direction;
+               switch(direction){
+               case NORTH:visualization<<'^';break;
+               case EAST:visualization<<'>';break;
+               case SOUTH:visualization<<'v';break;
+               case WEST:visualization<<'<';break;
+               }
+            } else{
+               visualization<<(isEnergized[y][x]?'#':'.');
+            }
+         }
+         if(repeatInput){
+            visualization<<' ';
+            for(llint x=0;x<board.size();x++){
+               using enum Mirror;
+               switch(board[y][x]){
+               case VERTICAL:visualization<<'|';break;
+               case HORIZONTAL:visualization<<'-';break;
+               case FORWARD:visualization<<'/';break;
+               case BACKWARD:visualization<<'\\';break;
+               case EMPTY:default:visualization<<'.';break;
+               }
+            }
+         }
+         visualization<<'\n';
+      }
+      visualization<<'\n';
    }
    direction=turn(direction,board[current.y][current.x]);
    if(std::find(directions.cbegin(),directions.cend(),direction)!=directions.cend()){
