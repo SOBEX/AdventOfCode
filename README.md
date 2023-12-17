@@ -34,3 +34,5 @@
 - Day 13
    - writing code fast is easier than writing fast code
    - passing functions as template parameters
+- Day 16
+   - msvc does not do tail call optimization like gcc
