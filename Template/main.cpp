@@ -4,6 +4,7 @@
 #include<fstream>
 #include<sstream>
 #include<string>
+#include<utility>
 #include<vector>
 using t_t=decltype(std::chrono::high_resolution_clock::now());
 t_t getTime(){
@@ -22,18 +23,37 @@ double getDurationMs(t_t start,t_t end){
 double getDurationS(t_t start,t_t end){
    return std::chrono::duration_cast<d_t>(end-start).count()/1'000'000'000.0;
 }
+using shint=unsigned char;
 using llint=long long int;
+using Line=std::string;
+using Input=std::vector<std::string>;
+struct Position{
+   llint x;
+   llint y;
+   bool isIn(llint width,llint height)const{
+      return 0<=x&&x<width&&0<=y&&y<height;
+   }
+   template<typename T>bool isIn(T &t)const{
+      return isIn(t[0].size(),t.size());
+   }
+   template<typename T>decltype(std::declval<T>()[0][0])indexInto(T &t)const{
+      return t[y][x];
+   }
+};
+using Cell=llint;
+using Row=std::vector<Cell>;
+using Board=std::vector<Row>;
 
-llint solve1(const std::vector<std::string> &input){
+llint solve1(const Input &input){
    llint sum=0;
-   for(const std::string &_line:input){
+   for(const Line &_line:input){
       std::istringstream line{_line};
    }
    return sum;
 }
-llint solve2(const std::vector<std::string> &input){
+llint solve2(const Input &input){
    llint sum=0;
-   for(const std::string &_line:input){
+   for(const Line &_line:input){
       std::istringstream line{_line};
    }
    return sum;
@@ -45,17 +65,17 @@ int main(){
    constexpr bool doExample2=true;
    constexpr bool doInput2=true;
 
-   std::vector<std::string>example1={
+   Input example1={
       "",
       ""
    };
 
-   std::vector<std::string>example2=example1;
+   Input example2=example1;
 
-   std::vector<std::string>input;
+   Input input;
    {
       std::ifstream inputFile("input");
-      std::string line;
+      Line line;
       while(std::getline(inputFile,line)){
          input.push_back(line);
       }
