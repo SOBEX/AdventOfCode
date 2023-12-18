@@ -36,3 +36,5 @@
    - passing functions as template parameters
 - Day 16
    - msvc does not do tail call optimization like gcc
+- Day 17
+   - i should learn A* and stop doing dijkstra every time
