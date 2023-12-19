@@ -6,6 +6,13 @@
 #include<string>
 #include<utility>
 #include<vector>
+#ifdef _MSC_VER
+#define UNREACHABLE() __assume(false)
+#define ASSUME(C) __assume(C)
+#else
+#define UNREACHABLE() __builtin_unreachable()
+#define ASSUME(C) do{if(!__builtin_expect(C,true)){UNREACHABLE();}}while(false)
+#endif
 using t_t=decltype(std::chrono::high_resolution_clock::now());
 t_t getTime(){
    return std::chrono::high_resolution_clock::now();
@@ -39,6 +46,12 @@ struct Position{
    template<typename T>decltype(std::declval<T>()[0][0])indexInto(T &t)const{
       return t[y][x];
    }
+   friend auto operator<=>(Position l,Position r){
+      if(auto dx=l.x<=>r.x;dx!=0){
+         return dx;
+      }
+      return l.y<=>r.y;
+   }
 };
 using Cell=llint;
 using Row=std::vector<Cell>;
@@ -59,6 +72,7 @@ llint solve2(const Input &input){
    return sum;
 }
 int main(){
+   constexpr bool logToFile=false;
    constexpr llint doWarming=0;
    constexpr bool doExample1=true;
    constexpr bool doInput1=true;
@@ -73,29 +87,55 @@ int main(){
    Input example2=example1;
 
    Input input;
-   {
-      std::ifstream inputFile("input");
-      Line line;
-      while(std::getline(inputFile,line)){
-         input.push_back(line);
-      }
+   std::ifstream inputFile("input");
+   Line line;
+   while(std::getline(inputFile,line)){
+      input.push_back(line);
    }
+   inputFile.close();
 
-   llint result=0;
+   volatile llint result=0;
    for(llint warming=0;warming<doWarming;warming++){
       result=(doExample1?solve1(example1):-1)+(doInput1?solve1(input):-1)
          +(doExample2?solve2(example2):-1)+(doInput2?solve2(input):-1);
    }
 
-   t_t time0=getTime();
-   auto answer1example=doExample1?solve1(example1):-1;
-   t_t time1=getTime();
-   auto answer1input=doInput1?solve1(input):-1;
-   t_t time2=getTime();
-   auto answer2example=doExample2?solve2(example2):-1;
-   t_t time3=getTime();
-   auto answer2input=doInput2?solve2(input):-1;
-   t_t time4=getTime();
+   t_t time0,time1,time2,time3,time4;
+   decltype(solve1(example1))answer1example=-1;
+   decltype(solve1(input))answer1input=-1;
+   decltype(solve1(example2))answer2example=-1;
+   decltype(solve1(input))answer2input=-1;
+
+   std::ofstream log;
+   std::streambuf *coutBuf;
+   if constexpr(logToFile){
+      log.open("log.txt");
+      coutBuf=std::cout.rdbuf();
+      std::cout.rdbuf(log.rdbuf());
+   }
+
+   time0=getTime();
+   if constexpr(doExample1){
+      answer1example=solve1(example1);
+   }
+   time1=getTime();
+   if constexpr(doInput1){
+      answer1input=solve1(input);
+   }
+   time2=getTime();
+   if constexpr(doExample2){
+      answer2example=solve2(example2);
+   }
+   time3=getTime();
+   if constexpr(doInput2){
+      answer2input=solve2(input);
+   }
+   time4=getTime();
+
+   if constexpr(logToFile){
+      std::cout.rdbuf(coutBuf);
+      log.close();
+   }
 
    std::cout<<"Example 1 took "<<getDurationMs(time0,time1)<<"ms: "<<answer1example<<'\n';
    std::cout<<"Input   1 took "<<getDurationMs(time1,time2)<<"ms: "<<(answer1input)<<'\n';
