@@ -38,3 +38,6 @@
    - msvc does not do tail call optimization like gcc
 - Day 17
    - i should learn A* and stop doing dijkstra every time
+- Day 18
+   - handparsing integers is faster than `from_chars`
+   - msvc does not like emitting branchless conditional move
