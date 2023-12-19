@@ -56,6 +56,8 @@ struct Position{
 using Cell=bool;
 using Row=std::vector<Cell>;
 using Board=std::vector<Row>;
+#define MYCHOICE 1
+#if MYCHOICE==0
 #include<ios>
 llint solve1(const Input &input){
    constexpr llint BOARDSIZE=300;
@@ -145,6 +147,102 @@ llint solve2(const Input &input){
    }
    return std::abs(count/2)+borderCount/2+1;
 }
+#elif MYCHOICE==1
+#include<charconv>
+llint solve1(const Input &input){
+   llint x=0;
+   llint count=1;
+   for(const Line &line:input){
+      const char *ptr=line.data()+2;
+      char c=ptr[0];
+      ASSUME('0'<=c&&c<='9');
+      llint length=c-'0';
+      for(llint i=1;ptr[i]!=' ';i++){
+         c=ptr[i];
+         ASSUME('0'<=c&&c<='9');
+         length=length*10+(c-'0');
+      }
+      char direction=line[0];
+      ASSUME(direction=='D'||direction=='L'||direction=='R'||direction=='U');
+      /*/
+      switch(direction){
+      case 'U':
+         count-=x*length;
+         break;
+      case 'R':
+         x+=length;
+         count+=length;
+         break;
+      case 'L':
+         x-=length;
+         break;
+      case 'D':
+         count+=x*length+length;
+         break;
+      default:
+         UNREACHABLE();
+      }
+      /*/
+      llint xIncrease=direction=='R'?length:direction=='L'?-length:0;
+      llint countIncrease=direction=='R'?length:direction=='D'?x*length+length:direction=='U'?-x*length:0;
+      x+=xIncrease;
+      count+=countIncrease;
+      /**/
+   }
+   return count;
+}
+llint solve2(const Input &input){
+   llint x=0;
+   llint count=1;
+   for(const Line &line:input){
+      const char *ptr=line.data()+5;
+      while(*(ptr++)!='#');
+      llint length=0;
+      for(llint i=0;i<5;i++){
+         char c=ptr[i];
+         ASSUME(('0'<=c&&c<='9')||('a'<=c&&c<='f'));
+         length=length*16+(c&(char)64?c-'a'+10:c-'0');
+      }
+      char direction=ptr[5]-'0';
+      ASSUME(0<=direction&&direction<4);
+      /*/
+      switch(direction){
+      case 3:
+         count-=x*length;
+         break;
+      case 2:
+         x-=length;
+         break;
+      case 1:
+         count+=x*length+length;
+         break;
+      case 0:
+         x+=length;
+         count+=length;
+         break;
+      default:
+         UNREACHABLE();
+      }
+      /*/
+      std::array<llint,4>xIncreases{
+         length,
+         0,
+         -length,
+         0
+      };
+      std::array<llint,4>countIncreases{
+         length,
+         x*length+length,
+         0,
+         -x*length
+      };
+      x+=xIncreases[direction];
+      count+=countIncreases[direction];
+      /**/
+   }
+   return count;
+}
+#endif
 int main(){
    constexpr bool logToFile=false;
    constexpr llint doWarming=100000;
