@@ -1,7 +1,8 @@
 #include<array>
 #include<chrono>
-#include<iostream>
 #include<fstream>
+#include<iostream>
+#include<limits>
 #include<sstream>
 #include<string>
 #include<utility>
@@ -32,6 +33,8 @@ double getDurationS(t_t start,t_t end){
 }
 using shint=unsigned char;
 using llint=long long int;
+constexpr llint LLINTMIN=std::numeric_limits<llint>::min();
+constexpr llint LLINTMAX=std::numeric_limits<llint>::max();
 using Line=std::string;
 using Input=std::vector<std::string>;
 struct Position{
