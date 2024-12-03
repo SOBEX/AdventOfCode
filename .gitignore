@@ -1,0 +1,10 @@
+.vs/
+x86/
+x64/
+
+*.sln
+*.vcxproj*
+*.code-workspace
+
+input
+2023/Day09/consteval.cpp
