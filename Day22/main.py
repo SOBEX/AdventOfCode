@@ -1,22 +1,10 @@
 import time
 
-def mix(secret,value):
-   return secret^value
-
-def prune(secret):
-   return secret%16777216
-
-def step1(secret):
-   return prune(mix(secret,secret*64))
-
-def step2(secret):
-   return prune(mix(secret,secret//32))
-
-def step3(secret):
-   return prune(mix(secret,secret*2048))
-
 def step(secret):
-   return step3(step2(step1(secret)))
+   secret^=(secret&0x03FFFF)<<6
+   secret^=secret>>5
+   secret^=(secret&0x001FFF)<<11
+   return secret
 
 def solve1(secrets):
    result=0
