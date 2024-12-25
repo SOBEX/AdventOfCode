@@ -1,31 +1,37 @@
+import sys
+import os
+AOC_DIRECTORY=sys.path[0] or os.getcwd()
+while AOC_DIRECTORY:
+   if os.path.basename(AOC_DIRECTORY)=='AdventOfCode':
+      sys.path.insert(1,AOC_DIRECTORY)
+      break
+   AOC_DIRECTORY=os.path.dirname(AOC_DIRECTORY)
+else:
+   raise ImportError
+from aoc import *
+
 import time
-
-def solve1():
-   return -1
-
-def solve2():
-   return -1
-
-def readsplit(filename):
-   with open(filename,'r') as file:
-      return file.read().rstrip('\n').split('\n')
 
 def main(filename='input'):
    time0=time.perf_counter_ns()
 
-   input=readsplit(filename)
+   #reading
+   content=readFile(filename)
 
    time1=time.perf_counter_ns()
 
-   #
+   #parsing
+   lines=parseLines(content)
 
    time2=time.perf_counter_ns()
 
-   answer1=solve1()
+   #part 1
+   answer1=0
 
    time3=time.perf_counter_ns()
 
-   answer2=solve2()
+   #part 2
+   answer2=0
 
    time4=time.perf_counter_ns()
 
