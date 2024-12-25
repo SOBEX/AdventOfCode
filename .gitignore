@@ -6,5 +6,6 @@ x64/
 *.vcxproj*
 *.code-workspace
 
+__pycache__/
 input
 2023/Day09/consteval.cpp
