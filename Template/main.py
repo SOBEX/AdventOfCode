@@ -8,7 +8,7 @@ while AOC_DIRECTORY:
    AOC_DIRECTORY=os.path.dirname(AOC_DIRECTORY)
 else:
    raise ImportError
-from aoc import *
+from libaoc import *
 
 import time
 
@@ -16,12 +16,12 @@ def main(filename='input'):
    time0=time.perf_counter_ns()
 
    #reading
-   content=readFile(filename)
+   content=read.file(filename)
 
    time1=time.perf_counter_ns()
 
    #parsing
-   lines=parseLines(content)
+   lines=parse.lines(content)
 
    time2=time.perf_counter_ns()
 

@@ -1,10 +1,6 @@
 import re
 
-def readFile(filename):
-   with open(filename,'r') as file:
-      return file.read().rstrip('\n')
-
-def parseString(string):
+def string(string):
    try:
       return int(string)
    except:
@@ -16,10 +12,10 @@ def parseString(string):
 def parse(content,regex):
    matched=[]
    for match in re.finditer(regex,content):
-      matched.append(tuple(parseString(group) for group in match.groups()))
+      matched.append(tuple(string(group) for group in match.groups()))
    return matched
 
-def parseLines(content,regex=None):
+def lines(content,regex=None):
    if regex is None:
       return content.split('\n')
    parsed=[]
@@ -29,11 +25,11 @@ def parseLines(content,regex=None):
       for match in re.finditer(regex,line):
          groups=match.groups()
          if len(groups)==0:
-            matched.append(parseString(match.group(0)))
+            matched.append(string(match.group(0)))
          elif len(groups)==1:
-            matched.append(parseString(groups[0]))
+            matched.append(string(groups[0]))
          else:
-            matched.append(tuple(parseString(group) for group in match.groups()))
+            matched.append(tuple(string(group) for group in match.groups()))
       if len(matched)>1 and not multiple:
          parsed=[[parse] for parse in parsed]
          multiple=True
@@ -44,11 +40,11 @@ def parseLines(content,regex=None):
    return parsed
    return [line for line in content.split('\n')]
 
-def parseSections(content):
+def sections(content):
    return content.split('\n\n')
 
-def parseGrid(content):
+def grid(content):
    return [[character for character in line] for line in content.split('\n')]
 
-def parseGrids(content):
+def grids(content):
    return [[[character for character in line] for line in grid] for grid in content.split('\n\n')]

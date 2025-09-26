@@ -8,7 +8,7 @@ while AOC_DIRECTORY:
    AOC_DIRECTORY=os.path.dirname(AOC_DIRECTORY)
 else:
    raise ImportError
-from aoc import *
+from libaoc import *
 
 import time
 
@@ -16,12 +16,12 @@ def main(filename='input'):
    time0=time.perf_counter_ns()
 
    #reading
-   content=readFile(filename)
+   content=read.file(filename)
 
    time1=time.perf_counter_ns()
 
    #parsing
-   lines=parseLines(content,r'\d+')
+   lines=parse.lines(content,r'\d+')
 
    time2=time.perf_counter_ns()
 
@@ -37,16 +37,16 @@ def main(filename='input'):
 
    time4=time.perf_counter_ns()
 
-   read=(time1-time0)/1000000.0
-   parse=(time2-time1)/1000000.0
-   part1=(time3-time2)/1000000.0
-   part2=(time4-time3)/1000000.0
-   print(f'Read     input  in {read}ms')
-   print(f'Parsed   input  in {parse}ms')
-   print(f'Answered part 1 in {part1}ms: {answer1}')
-   print(f'Answered part 2 in {part2}ms: {answer2}')
+   timeRead=(time1-time0)/1000000.0
+   timeParse=(time2-time1)/1000000.0
+   timePart1=(time3-time2)/1000000.0
+   timePart2=(time4-time3)/1000000.0
+   print(f'Read     input  in {timeRead}ms')
+   print(f'Parsed   input  in {timeParse}ms')
+   print(f'Answered part 1 in {timePart1}ms: {answer1}')
+   print(f'Answered part 2 in {timePart2}ms: {answer2}')
 
-   return ((answer1,answer2),(read,parse,part1,part2))
+   return ((answer1,answer2),(timeRead,timeParse,timePart1,timePart2))
 
 if __name__=='__main__':
    main(os.path.splitext(os.path.basename(__file__))[0])
