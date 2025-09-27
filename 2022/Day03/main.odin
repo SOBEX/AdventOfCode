@@ -35,11 +35,11 @@ solve_1::proc(input:Input)->int{
    for line in input{
       n:=len(line)
       l,r:bit_set['A'..='z']
-      for letter in line[:n/2]{
-         l|={letter}
+      for i:=0;i<n/2;i+=1{
+         l|={rune(line[i])}
       }
-      for letter in line[n/2:]{
-         r|={letter}
+      for i:=n/2;i<n;i+=1{
+         r|={rune(line[i])}
       }
       intersection:=l&r
       for letter in intersection{
@@ -57,14 +57,14 @@ solve_2::proc(input:Input)->int{
    sum:int=0
    for i:=0;i<len(input);i+=3{
       e,f,g:bit_set['A'..='z']
-      for letter in input[i]{
-         e|={letter}
+      for j:=0;j<len(input[i]);j+=1{
+         e|={rune(input[i][j])}
       }
-      for letter in input[i+1]{
-         f|={letter}
+      for j:=0;j<len(input[i+1]);j+=1{
+         f|={rune(input[i+1][j])}
       }
-      for letter in input[i+2]{
-         g|={letter}
+      for j:=0;j<len(input[i+2]);j+=1{
+         g|={rune(input[i+2][j])}
       }
       intersection:=e&f&g
       for letter in intersection{
