@@ -31,14 +31,14 @@ Row::[]Cell
 Board::[]Row
 
 solve_1::proc(input:Input)->int{
-   sum:int=0
+   sum:=0
    for line in input{
    }
    return sum
 }
 
 solve_2::proc(input:Input)->int{
-   sum:int=0
+   sum:=0
    for line in input{
    }
    return sum
@@ -85,7 +85,7 @@ main::proc(){
    defer delete(input_split)
    input:=input_split[:len(input_split)-1]
 
-   result:int=0
+   result:=0
    for warming in 0..<do_warming{
       if do_example_1{
          result=solve_1(example_1)
@@ -102,10 +102,10 @@ main::proc(){
    }
    result=0
 
-   answer_1_example:int=-1
-   answer_1_input:int=-1
-   answer_2_example:int=-1
-   answer_2_input:int=-1
+   answer_1_example:=-1
+   answer_1_input:=-1
+   answer_2_example:=-1
+   answer_2_input:=-1
 
    time_0:=get_time()
    if do_example_1{
