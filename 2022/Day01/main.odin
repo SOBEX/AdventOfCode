@@ -14,10 +14,10 @@ get_duration_ns::proc(start,end:Time)->f64{
    return f64(time.duration_nanoseconds(time.diff(start,end)))
 }
 get_duration_us::proc(start,end:Time)->f64{
-   return time.duration_milliseconds(time.diff(start,end))
+   return time.duration_microseconds(time.diff(start,end))
 }
 get_duration_ms::proc(start,end:Time)->f64{
-   return time.duration_microseconds(time.diff(start,end))
+   return time.duration_milliseconds(time.diff(start,end))
 }
 get_duration_s::proc(start,end:Time)->f64{
    return time.duration_seconds(time.diff(start,end))
@@ -173,8 +173,8 @@ main::proc(){
    }
    time_4:=get_time()
 
-   fmt.printfln("Example 1 took % 6.1fms: %v",get_duration_ms(time_0,time_1),answer_1_example)
-   fmt.printfln("Input   1 took % 6.1fms: %v",get_duration_ms(time_1,time_2),answer_1_input)
-   fmt.printfln("Example 2 took % 6.1fms: %v",get_duration_ms(time_2,time_3),answer_2_example)
-   fmt.printfln("Input   2 took % 6.1fms: %v",get_duration_ms(time_3,time_4),answer_2_input)
+   fmt.printfln("Example 1 took % 9.4fms: %v",get_duration_ms(time_0,time_1),answer_1_example)
+   fmt.printfln("Input   1 took % 9.4fms: %v",get_duration_ms(time_1,time_2),answer_1_input)
+   fmt.printfln("Example 2 took % 9.4fms: %v",get_duration_ms(time_2,time_3),answer_2_example)
+   fmt.printfln("Input   2 took % 9.4fms: %v",get_duration_ms(time_3,time_4),answer_2_input)
 }
