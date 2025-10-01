@@ -23,25 +23,16 @@ get_duration_s::proc(start,end:Time)->f64{
    return time.duration_seconds(time.diff(start,end))
 }
 
-Line::string
-Input::[]Line
-Position::[2]int
-Cell::int
-Row::[]Cell
-Board::[]Row
-
-solve_1::proc(input:Input)->int{
-   sum:=0
+solve_1::proc(input:[]string)->(result:=0){
    for line in input{
    }
-   return sum
+   return result
 }
 
-solve_2::proc(input:Input)->int{
-   sum:=0
+solve_2::proc(input:[]string)->(result:=0){
    for line in input{
    }
-   return sum
+   return result
 }
 
 main::proc(){
@@ -62,13 +53,13 @@ main::proc(){
       }
    }
 
-   do_warming  :=0
-   do_example_1:=true
-   do_input_1  :=true
-   do_example_2:=true
-   do_input_2  :=true
+   do_warming  ::0
+   do_example_1::true
+   do_input_1  ::true
+   do_example_2::true
+   do_input_2  ::true
 
-   example_1:=Input{
+   example_1:=[]string{
       "",
       ""
    }
@@ -85,48 +76,36 @@ main::proc(){
    defer delete(input_split)
    input:=input_split[:len(input_split)-1]
 
-   result:=0
-   for warming in 0..<do_warming{
-      if do_example_1{
-         result=solve_1(example_1)
-      }
-      if do_input_1{
-         result=solve_1(input)
-      }
-      if do_example_2{
-         result=solve_2(example_2)
-      }
-      if do_input_2{
-         result=solve_2(input)
+   when do_warming>0{
+      result:=0
+      for warming in 0..<do_warming{
+         when do_example_1{
+            result=solve_1(example_1)
+         }
+         when do_input_1{
+            result=solve_1(input)
+         }
+         when do_example_2{
+            result=solve_2(example_2)
+         }
+         when do_input_2{
+            result=solve_2(input)
+         }
       }
    }
-   result=0
-
-   answer_1_example:=-1
-   answer_1_input:=-1
-   answer_2_example:=-1
-   answer_2_input:=-1
 
    time_0:=get_time()
-   if do_example_1{
-      answer_1_example=solve_1(example_1)
-   }
+   when do_example_1 do answer_1_example:=solve_1(example_1)
    time_1:=get_time()
-   if do_input_1{
-      answer_1_input=solve_1(input)
-   }
+   when do_input_1   do answer_1_input  :=solve_1(input)
    time_2:=get_time()
-   if do_example_2{
-      answer_2_example=solve_2(example_2)
-   }
+   when do_example_2 do answer_2_example:=solve_2(example_2)
    time_3:=get_time()
-   if do_input_2{
-      answer_2_input=solve_2(input)
-   }
+   when do_input_2   do answer_2_input  :=solve_2(input)
    time_4:=get_time()
 
-   fmt.printfln("Example 1 took % 9.4fms: %v",get_duration_ms(time_0,time_1),answer_1_example)
-   fmt.printfln("Input   1 took % 9.4fms: %v",get_duration_ms(time_1,time_2),answer_1_input)
-   fmt.printfln("Example 2 took % 9.4fms: %v",get_duration_ms(time_2,time_3),answer_2_example)
-   fmt.printfln("Input   2 took % 9.4fms: %v",get_duration_ms(time_3,time_4),answer_2_input)
+   when do_example_1 do fmt.printfln("Example 1 took % 9.4fms: %v",get_duration_ms(time_0,time_1),answer_1_example)
+   when do_input_1   do fmt.printfln("Input   1 took % 9.4fms: %v",get_duration_ms(time_1,time_2),answer_1_input)
+   when do_example_2 do fmt.printfln("Example 2 took % 9.4fms: %v",get_duration_ms(time_2,time_3),answer_2_example)
+   when do_input_2   do fmt.printfln("Input   2 took % 9.4fms: %v",get_duration_ms(time_3,time_4),answer_2_input)
 }
