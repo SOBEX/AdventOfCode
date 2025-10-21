@@ -37,19 +37,33 @@ solve_2::proc(input:[]string)->(result:=0){
 
 main::proc(){
    when ODIN_DEBUG{
-      track:mem.Tracking_Allocator
-      mem.tracking_allocator_init(&track,context.allocator)
-      context.allocator=mem.tracking_allocator(&track)
+      original_allocator:=context.allocator
+      tracking_allocator:mem.Tracking_Allocator
+      mem.tracking_allocator_init(&tracking_allocator,original_allocator)
+      context.allocator=mem.tracking_allocator(&tracking_allocator)
       defer{
-         if len(track.allocation_map)>0{
-            fmt.eprintfln("=== %v allocations not freed: ===",len(track.allocation_map))
-            for _,entry in track.allocation_map{
+         good:=true
+         bad_alloc_count:=len(tracking_allocator.allocation_map)
+         if bad_alloc_count>0{
+            good=false
+            fmt.eprintfln("=== %v allocations not freed: ===",bad_alloc_count)
+            for _,entry in tracking_allocator.allocation_map{
                fmt.eprintfln("- %v bytes @ %v",entry.size,entry.location)
             }
-         }else{
+         }
+         bad_free_count:=len(tracking_allocator.bad_free_array)
+         if bad_free_count>0{
+            good=false
+            fmt.eprintfln("=== %v incorrect frees: ===",bad_free_count)
+            for entry in tracking_allocator.bad_free_array{
+               fmt.eprintfln("- %p @ %v",entry.memory,entry.location)
+            }
+         }
+         if good{
             fmt.println("=== all allocations freed ===")
          }
-         mem.tracking_allocator_destroy(&track)
+         context.allocator=original_allocator
+         mem.tracking_allocator_destroy(&tracking_allocator)
       }
    }
 
