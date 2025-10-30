@@ -40,6 +40,7 @@ main::proc(){
       original_allocator:=context.allocator
       tracking_allocator:mem.Tracking_Allocator
       mem.tracking_allocator_init(&tracking_allocator,original_allocator)
+      tracking_allocator.bad_free_callback=mem.tracking_allocator_bad_free_callback_add_to_array
       context.allocator=mem.tracking_allocator(&tracking_allocator)
       defer{
          good:=true
