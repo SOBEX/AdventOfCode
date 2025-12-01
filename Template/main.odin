@@ -1,35 +1,19 @@
 package main
 
+import "base:intrinsics"
 import "core:fmt"
 import "core:mem"
-import "core:os"
+import os "core:os/os2"
 import "core:strings"
 import "core:time"
 
-Time::time.Time
-get_time::proc()->Time{
-   return time.now()
-}
-get_duration_ns::proc(start,end:Time)->f64{
-   return f64(time.duration_nanoseconds(time.diff(start,end)))
-}
-get_duration_us::proc(start,end:Time)->f64{
-   return time.duration_microseconds(time.diff(start,end))
-}
-get_duration_ms::proc(start,end:Time)->f64{
-   return time.duration_milliseconds(time.diff(start,end))
-}
-get_duration_s::proc(start,end:Time)->f64{
-   return time.duration_seconds(time.diff(start,end))
-}
-
-solve_1::proc(input:[]string)->(result:=0){
+solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    for line in input{
    }
    return result
 }
 
-solve_2::proc(input:[]string)->(result:=0){
+solve_2::#force_no_inline proc(input:[]string)->(result:=0){
    for line in input{
    }
    return result
@@ -68,11 +52,12 @@ main::proc(){
       }
    }
 
-   do_warming  ::0
-   do_example_1::true
-   do_input_1  ::true
-   do_example_2::true
-   do_input_2  ::true
+   DO_EXAMPLE_1::true
+   DO_INPUT_1  ::true
+   DO_EXAMPLE_2::true
+   DO_INPUT_2  ::true
+   DO_WARMING  ::0
+   DO_TIMING   ::1
 
    example_1:=[]string{
       "",
@@ -81,46 +66,61 @@ main::proc(){
 
    example_2:=example_1
 
-   input_raw,ok:=os.read_entire_file("input")
-   if !ok{
-      fmt.println("ERROR: failed opening file 'input'")
+   input_raw,err:=os.read_entire_file("input",context.allocator)
+   if err!=nil{
+      fmt.println("ERROR: failed opening file 'input':",os.error_string(err))
       os.exit(1)
    }
-   defer delete(input_raw)
-   input_split:=strings.split_lines(string(input_raw))
-   defer delete(input_split)
+   defer delete(input_raw,context.allocator)
+   input_split:=strings.split_lines(string(input_raw),context.allocator)
+   defer delete(input_split,context.allocator)
    input:=input_split[:len(input_split)-1]
 
-   when do_warming>0{
-      result:=0
-      for warming in 0..<do_warming{
-         when do_example_1{
-            result=solve_1(example_1)
-         }
-         when do_input_1{
-            result=solve_1(input)
-         }
-         when do_example_2{
-            result=solve_2(example_2)
-         }
-         when do_input_2{
-            result=solve_2(input)
-         }
+   when DO_EXAMPLE_1 do answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+   when DO_INPUT_1   do answer_input_1  :intrinsics.type_proc_return_type(type_of(solve_1),0)
+   when DO_EXAMPLE_2 do answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+   when DO_INPUT_2   do answer_input_2  :intrinsics.type_proc_return_type(type_of(solve_2),0)
+
+   when DO_WARMING>0{
+      for _ in 0..<DO_WARMING{
+         when DO_EXAMPLE_1 do answer_example_1=solve_1(example_1)
+         when DO_INPUT_1   do answer_input_1  =solve_1(input)
+         when DO_EXAMPLE_2 do answer_example_1=solve_2(example_2)
+         when DO_INPUT_2   do answer_input_1  =solve_2(input)
       }
    }
 
-   time_0:=get_time()
-   when do_example_1 do answer_1_example:=solve_1(example_1)
-   time_1:=get_time()
-   when do_input_1   do answer_1_input  :=solve_1(input)
-   time_2:=get_time()
-   when do_example_2 do answer_2_example:=solve_2(example_2)
-   time_3:=get_time()
-   when do_input_2   do answer_2_input  :=solve_2(input)
-   time_4:=get_time()
+   when DO_EXAMPLE_1 do duration_example_1:time.Duration
+   when DO_INPUT_1   do duration_input_1  :time.Duration
+   when DO_EXAMPLE_2 do duration_example_2:time.Duration
+   when DO_INPUT_2   do duration_input_2  :time.Duration
 
-   when do_example_1 do fmt.printfln("Example 1 took % 9.4fms: %v",get_duration_ms(time_0,time_1),answer_1_example)
-   when do_input_1   do fmt.printfln("Input   1 took % 9.4fms: %v",get_duration_ms(time_1,time_2),answer_1_input)
-   when do_example_2 do fmt.printfln("Example 2 took % 9.4fms: %v",get_duration_ms(time_2,time_3),answer_2_example)
-   when do_input_2   do fmt.printfln("Input   2 took % 9.4fms: %v",get_duration_ms(time_3,time_4),answer_2_input)
+   DO_TIMING_REAL::max(1,DO_TIMING)
+   for _ in 0..<DO_TIMING_REAL{
+      when DO_EXAMPLE_1{
+         start_example_1   :=time.tick_now()
+         answer_example_1   =solve_1(example_1)
+         duration_example_1+=time.tick_since(start_example_1)
+      }
+      when DO_INPUT_1{
+         start_input_1     :=time.tick_now()
+         answer_input_1     =solve_1(input)
+         duration_input_1  +=time.tick_since(start_input_1)
+      }
+      when DO_EXAMPLE_2{
+         start_example_2   :=time.tick_now()
+         answer_example_2   =solve_2(example_2)
+         duration_example_2+=time.tick_since(start_example_2)
+      }
+      when DO_INPUT_2{
+         start_input_2     :=time.tick_now()
+         answer_input_2     =solve_2(input)
+         duration_input_2  +=time.tick_since(start_input_2)
+      }
+   }
+
+   when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 9.4fms: %v",time.duration_milliseconds(duration_example_1)/DO_TIMING_REAL,answer_example_1)
+   when DO_INPUT_1   do fmt.printfln("Input   1 took % 9.4fms: %v",time.duration_milliseconds(duration_input_1  )/DO_TIMING_REAL,answer_input_1  )
+   when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 9.4fms: %v",time.duration_milliseconds(duration_example_2)/DO_TIMING_REAL,answer_example_2)
+   when DO_INPUT_2   do fmt.printfln("Input   2 took % 9.4fms: %v",time.duration_milliseconds(duration_input_2  )/DO_TIMING_REAL,answer_input_2  )
 }
