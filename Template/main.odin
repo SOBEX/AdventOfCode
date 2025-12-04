@@ -2,8 +2,10 @@ package main
 
 import "base:intrinsics"
 import "core:fmt"
+import "core:math"
 import "core:mem"
 import os "core:os/os2"
+import "core:sort"
 import "core:strings"
 import "core:time"
 
@@ -85,42 +87,53 @@ main::proc(){
       for _ in 0..<DO_WARMING{
          when DO_EXAMPLE_1 do answer_example_1=solve_1(example_1)
          when DO_INPUT_1   do answer_input_1  =solve_1(input)
-         when DO_EXAMPLE_2 do answer_example_1=solve_2(example_2)
-         when DO_INPUT_2   do answer_input_1  =solve_2(input)
+         when DO_EXAMPLE_2 do answer_example_2=solve_2(example_2)
+         when DO_INPUT_2   do answer_input_2  =solve_2(input)
       }
    }
-
-   when DO_EXAMPLE_1 do duration_example_1:time.Duration
-   when DO_INPUT_1   do duration_input_1  :time.Duration
-   when DO_EXAMPLE_2 do duration_example_2:time.Duration
-   when DO_INPUT_2   do duration_input_2  :time.Duration
 
    DO_TIMING_REAL::max(1,DO_TIMING)
-   for _ in 0..<DO_TIMING_REAL{
+
+   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING_REAL]time.Duration
+   when DO_INPUT_1   do durations_input_1  :[DO_TIMING_REAL]time.Duration
+   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING_REAL]time.Duration
+   when DO_INPUT_2   do durations_input_2  :[DO_TIMING_REAL]time.Duration
+
+   for i in 0..<DO_TIMING_REAL{
       when DO_EXAMPLE_1{
-         start_example_1   :=time.tick_now()
-         answer_example_1   =solve_1(example_1)
-         duration_example_1+=time.tick_since(start_example_1)
+         start_example_1       :=time.tick_now()
+         answer_example_1       =solve_1(example_1)
+         durations_example_1[i] =time.tick_since(start_example_1)
       }
       when DO_INPUT_1{
-         start_input_1     :=time.tick_now()
-         answer_input_1     =solve_1(input)
-         duration_input_1  +=time.tick_since(start_input_1)
+         start_input_1         :=time.tick_now()
+         answer_input_1         =solve_1(input)
+         durations_input_1[i]   =time.tick_since(start_input_1)
       }
       when DO_EXAMPLE_2{
-         start_example_2   :=time.tick_now()
-         answer_example_2   =solve_2(example_2)
-         duration_example_2+=time.tick_since(start_example_2)
+         start_example_2       :=time.tick_now()
+         answer_example_2       =solve_2(example_2)
+         durations_example_2[i] =time.tick_since(start_example_2)
       }
       when DO_INPUT_2{
-         start_input_2     :=time.tick_now()
-         answer_input_2     =solve_2(input)
-         duration_input_2  +=time.tick_since(start_input_2)
+         start_input_2         :=time.tick_now()
+         answer_input_2         =solve_2(input)
+         durations_input_2[i]   =time.tick_since(start_input_2)
       }
    }
 
-   when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 9.4fms: %v",time.duration_milliseconds(duration_example_1)/DO_TIMING_REAL,answer_example_1)
-   when DO_INPUT_1   do fmt.printfln("Input   1 took % 9.4fms: %v",time.duration_milliseconds(duration_input_1  )/DO_TIMING_REAL,answer_input_1  )
-   when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 9.4fms: %v",time.duration_milliseconds(duration_example_2)/DO_TIMING_REAL,answer_example_2)
-   when DO_INPUT_2   do fmt.printfln("Input   2 took % 9.4fms: %v",time.duration_milliseconds(duration_input_2  )/DO_TIMING_REAL,answer_input_2  )
+   when DO_EXAMPLE_1 do sort.quick_sort(durations_example_1[:])
+   when DO_INPUT_1   do sort.quick_sort(durations_input_1  [:])
+   when DO_EXAMPLE_2 do sort.quick_sort(durations_example_2[:])
+   when DO_INPUT_2   do sort.quick_sort(durations_input_2  [:])
+
+   when DO_EXAMPLE_1 do duration_example_1:=durations_example_1[0] when DO_TIMING_REAL==1 else math.sum(durations_example_1[DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
+   when DO_INPUT_1   do duration_input_1  :=durations_input_1  [0] when DO_TIMING_REAL==1 else math.sum(durations_input_1  [DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
+   when DO_EXAMPLE_2 do duration_example_2:=durations_example_2[0] when DO_TIMING_REAL==1 else math.sum(durations_example_2[DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
+   when DO_INPUT_2   do duration_input_2  :=durations_input_2  [0] when DO_TIMING_REAL==1 else math.sum(durations_input_2  [DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
+
+   when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs: %v",time.duration_microseconds(duration_example_1),answer_example_1)
+   when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs: %v",time.duration_microseconds(duration_input_1  ),answer_input_1  )
+   when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 11.3fµs: %v",time.duration_microseconds(duration_example_2),answer_example_2)
+   when DO_INPUT_2   do fmt.printfln("Input   2 took % 11.3fµs: %v",time.duration_microseconds(duration_input_2  ),answer_input_2  )
 }
