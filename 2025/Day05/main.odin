@@ -39,10 +39,15 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    return result
 }
 
+import "core:slice/heap"
+
 solve_2::#force_no_inline proc(input:[]string)->(result:=0){
-   ranges:[dynamic][2]int
+   ranges:=make([][2]int,len(input))
    defer delete(ranges)
-   in_ranges:=true
+   ranges_length:=0
+   ranges_less::proc(l,r:[2]int)->bool{
+      return l[0]>r[0]
+   }
    for line in input{
       if len(line)==0{
          break
@@ -51,22 +56,22 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
       _left:=strings.split_iterator(&_right,"-") or_continue
       left:=strconv.parse_int(_left) or_continue
       right:=strconv.parse_int(_right) or_continue
-      id:=left
-      skip: for id<=right{
-         next_range:=[2]int{right+1,right+1}
-         for range in ranges{
-            if range[0]<=id&&id<=range[1]{
-               id=range[1]+1
-               continue skip
-            }
-            if id<=range[0]&&range[0]<next_range[0]{
-               next_range=range
-            }
-         }
-         result+=next_range[0]-id
-         id=next_range[1]+1
+      ranges[ranges_length]={left,right}
+      ranges_length+=1
+      heap.push(ranges[:ranges_length],ranges_less)
+   }
+   cur:=0
+   for ranges_length>0{
+      range:=ranges[0]
+      if cur<range[0]{
+         result+=range[1]-range[0]+1
+         cur=range[1]+1
+      }else if cur<=range[1]{
+         result+=range[1]-cur+1
+         cur=range[1]+1
       }
-      append(&ranges,[2]int{left,right})
+      heap.pop(ranges[:ranges_length],ranges_less)
+      ranges_length-=1
    }
    return result
 }
@@ -108,8 +113,8 @@ main::proc(){
    DO_INPUT_1  ::true
    DO_EXAMPLE_2::true
    DO_INPUT_2  ::true
-   DO_WARMING  ::0
-   DO_TIMING   ::1
+   DO_WARMING  ::100
+   DO_TIMING   ::1000
 
    example_1:=[]string{
       "3-5",
