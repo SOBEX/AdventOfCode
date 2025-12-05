@@ -92,14 +92,12 @@ main::proc(){
       }
    }
 
-   DO_TIMING_REAL::max(1,DO_TIMING)
+   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING]time.Duration
+   when DO_INPUT_1   do durations_input_1  :[DO_TIMING]time.Duration
+   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING]time.Duration
+   when DO_INPUT_2   do durations_input_2  :[DO_TIMING]time.Duration
 
-   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING_REAL]time.Duration
-   when DO_INPUT_1   do durations_input_1  :[DO_TIMING_REAL]time.Duration
-   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING_REAL]time.Duration
-   when DO_INPUT_2   do durations_input_2  :[DO_TIMING_REAL]time.Duration
-
-   for i in 0..<DO_TIMING_REAL{
+   for i in 0..<DO_TIMING{
       when DO_EXAMPLE_1{
          start_example_1       :=time.tick_now()
          answer_example_1       =solve_1(example_1)
@@ -127,10 +125,14 @@ main::proc(){
    when DO_EXAMPLE_2 do sort.quick_sort(durations_example_2[:])
    when DO_INPUT_2   do sort.quick_sort(durations_input_2  [:])
 
-   when DO_EXAMPLE_1 do duration_example_1:=durations_example_1[0] when DO_TIMING_REAL==1 else math.sum(durations_example_1[DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
-   when DO_INPUT_1   do duration_input_1  :=durations_input_1  [0] when DO_TIMING_REAL==1 else math.sum(durations_input_1  [DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
-   when DO_EXAMPLE_2 do duration_example_2:=durations_example_2[0] when DO_TIMING_REAL==1 else math.sum(durations_example_2[DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
-   when DO_INPUT_2   do duration_input_2  :=durations_input_2  [0] when DO_TIMING_REAL==1 else math.sum(durations_input_2  [DO_TIMING_REAL/10:DO_TIMING_REAL*9/10])/(DO_TIMING_REAL*9/10-DO_TIMING_REAL/10)
+   CUTOFF_START::DO_TIMING  /10
+   CUTOFF_END  ::DO_TIMING*9/10
+   CUTOFF_COUNT::CUTOFF_END-CUTOFF_START
+
+   when DO_EXAMPLE_1 do duration_example_1:=durations_example_1[0] when DO_TIMING==1 else math.sum(durations_example_1[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
+   when DO_INPUT_1   do duration_input_1  :=durations_input_1  [0] when DO_TIMING==1 else math.sum(durations_input_1  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
+   when DO_EXAMPLE_2 do duration_example_2:=durations_example_2[0] when DO_TIMING==1 else math.sum(durations_example_2[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
+   when DO_INPUT_2   do duration_input_2  :=durations_input_2  [0] when DO_TIMING==1 else math.sum(durations_input_2  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
 
    when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs: %v",time.duration_microseconds(duration_example_1),answer_example_1)
    when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs: %v",time.duration_microseconds(duration_input_1  ),answer_input_1  )
