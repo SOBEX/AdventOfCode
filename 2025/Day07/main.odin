@@ -10,54 +10,49 @@ import "core:strings"
 import "core:time"
 
 solve_1::#force_no_inline proc(input:[]string)->(result:=0){
-   columns:map[int]struct{}
+   width:=len(input[0])
+   columns:=make([]bool,width)
    defer delete(columns)
-   new_columns:map[int]struct{}
-   defer delete(new_columns)
    for c,i in input[0]{
       if c=='S'{
-         columns[i]={}
+         columns[i]=true
       }
    }
    for line in input[1:]{
-      for i in columns{
-         if line[i]=='^'{
-            new_columns[i-1]={}
-            new_columns[i+1]={}
+      for i:=0;i<width;i+=1{
+         if columns[i]&&line[i]=='^'{
+            columns[i-1]=true
+            columns[i]=false
+            columns[i+1]=true
             result+=1
-         }else{
-            new_columns[i]={}
+            i+=1
          }
       }
-      columns,new_columns=new_columns,columns
-      clear(&new_columns)
    }
    return result
 }
 
 solve_2::#force_no_inline proc(input:[]string)->(result:=0){
-   columns:map[int]int
+   width:=len(input[0])
+   columns:=make([]int,width)
    defer delete(columns)
-   new_columns:map[int]int
-   defer delete(new_columns)
    for c,i in input[0]{
       if c=='S'{
          columns[i]=1
       }
    }
    for line in input[1:]{
-      for i,v in columns{
-         if line[i]=='^'{
-            new_columns[i-1]+=v
-            new_columns[i+1]+=v
-         }else{
-            new_columns[i]+=v
+      for i:=0;i<width;i+=1{
+         v:=columns[i]
+         if v>0&&line[i]=='^'{
+            columns[i-1]+=v
+            columns[i]=0
+            columns[i+1]+=v
+            i+=1
          }
       }
-      columns,new_columns=new_columns,columns
-      clear(&new_columns)
    }
-   for i,v in columns{
+   for v in columns{
       result+=v
    }
    return result
