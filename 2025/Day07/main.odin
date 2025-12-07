@@ -9,7 +9,7 @@ import "core:sort"
 import "core:strings"
 import "core:time"
 
-solve_1::#force_no_inline proc(input:[]string)->(result:=0){
+solve_1::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    width:=len(input[0])
    columns:=make([]bool,width)
    defer delete(columns)
@@ -31,7 +31,7 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    return result
 }
 
-solve_2::#force_no_inline proc(input:[]string)->(result:=0){
+solve_2::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    width:=len(input[0])
    columns:=make([]int,width)
    defer delete(columns)
@@ -92,8 +92,8 @@ main::proc(){
    DO_INPUT_1  ::true
    DO_EXAMPLE_2::true
    DO_INPUT_2  ::true
-   DO_WARMING  ::0
-   DO_TIMING   ::1
+   DO_WARMING  ::1000
+   DO_TIMING   ::10000
 
    example_1:=[]string{
       ".......S.......",
