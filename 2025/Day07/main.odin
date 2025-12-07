@@ -13,19 +13,18 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    width:=len(input[0])
    columns:=make([]bool,width)
    defer delete(columns)
-   for c,i in input[0]{
-      if c=='S'{
-         columns[i]=true
-      }
-   }
-   for line in input[1:]{
-      for i:=0;i<width;i+=1{
-         if columns[i]&&line[i]=='^'{
-            columns[i-1]=true
-            columns[i]=false
-            columns[i+1]=true
+   columns[strings.index_byte(input[0],'S')]=true
+   for y:=2;y<len(input);y+=2{
+      line:=input[y]
+      start:=width/2-y/2+1
+      end:=width/2+y/2-1
+      for x:=start;x<=end;x+=2{
+         v:=columns[x]
+         if v&&line[x]=='^'{
+            columns[x-1]=true
+            columns[x]=false
+            columns[x+1]=true
             result+=1
-            i+=1
          }
       }
    }
@@ -36,19 +35,17 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
    width:=len(input[0])
    columns:=make([]int,width)
    defer delete(columns)
-   for c,i in input[0]{
-      if c=='S'{
-         columns[i]=1
-      }
-   }
-   for line in input[1:]{
-      for i:=0;i<width;i+=1{
-         v:=columns[i]
-         if v>0&&line[i]=='^'{
-            columns[i-1]+=v
-            columns[i]=0
-            columns[i+1]+=v
-            i+=1
+   columns[strings.index_byte(input[0],'S')]=1
+   for y:=2;y<len(input);y+=2{
+      line:=input[y]
+      start:=width/2-y/2+1
+      end:=width/2+y/2-1
+      for x:=start;x<=end;x+=2{
+         v:=columns[x]
+         if v>0&&line[x]=='^'{
+            columns[x-1]+=v
+            columns[x]=0
+            columns[x+1]+=v
          }
       }
    }
