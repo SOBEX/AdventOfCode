@@ -2,51 +2,52 @@ package main
 
 import "base:intrinsics"
 import "core:fmt"
+import "core:math"
 import "core:mem"
 import os "core:os/os2"
+import "core:sort"
 import "core:strings"
 import "core:time"
 
-import "core:strconv"
-
-solve_1::#force_no_inline proc(input:[]string)->(result:=0){
-   dial:=50
+solve_1::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
+   dial:=max(uint)/200*100+50
    for line in input{
-      lr:=line[0]
-      i:=strconv.parse_int(line[1:]) or_continue
-      if lr=='L'{
-         dial-=i
-      }else{
-         dial+=i
+      v:=uint(0)
+      for i in 1..<len(line){
+         v=10*v+uint(line[i]-'0')
       }
-      dial=dial%%100
-      if dial==0{
+      if line[0]=='L'{
+         dial+=v
+      }else{
+         dial-=v
+      }
+      if dial%%100==0{
          result+=1
       }
    }
    return result
 }
 
-solve_2::#force_no_inline proc(input:[]string)->(result:=0){
-   dial:=50
+solve_2::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
+   dial:=max(uint)/200*100+50
    for line in input{
-      lr:=line[0]
-      i:=strconv.parse_int(line[1:]) or_continue
-      if lr=='L'{
-         for _ in 0..<i{
-            dial-=1
-            dial=dial%%100
-            if dial==0{
-               result+=1
-            }
+      v:=uint(0)
+      for i in 1..<len(line){
+         v=10*v+uint(line[i]-'0')
+      }
+      result+=int(v/100)
+      v%%=100
+      if line[0]=='L'{
+         old:=(dial-1)/100
+         dial-=v
+         if old!=(dial-1)/100{
+            result+=1
          }
       }else{
-         for _ in 0..<i{
-            dial+=1
-            dial=dial%%100
-            if dial==0{
-               result+=1
-            }
+         old:=dial/100
+         dial+=v
+         if old!=dial/100{
+            result+=1
          }
       }
    }
@@ -127,42 +128,72 @@ main::proc(){
       for _ in 0..<DO_WARMING{
          when DO_EXAMPLE_1 do answer_example_1=solve_1(example_1)
          when DO_INPUT_1   do answer_input_1  =solve_1(input)
-         when DO_EXAMPLE_2 do answer_example_1=solve_2(example_2)
-         when DO_INPUT_2   do answer_input_1  =solve_2(input)
+         when DO_EXAMPLE_2 do answer_example_2=solve_2(example_2)
+         when DO_INPUT_2   do answer_input_2  =solve_2(input)
       }
    }
 
-   when DO_EXAMPLE_1 do duration_example_1:time.Duration
-   when DO_INPUT_1   do duration_input_1  :time.Duration
-   when DO_EXAMPLE_2 do duration_example_2:time.Duration
-   when DO_INPUT_2   do duration_input_2  :time.Duration
+   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING]time.Duration
+   when DO_INPUT_1   do durations_input_1  :[DO_TIMING]time.Duration
+   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING]time.Duration
+   when DO_INPUT_2   do durations_input_2  :[DO_TIMING]time.Duration
 
-   DO_TIMING_REAL::max(1,DO_TIMING)
-   for _ in 0..<DO_TIMING_REAL{
+   for i in 0..<DO_TIMING{
       when DO_EXAMPLE_1{
-         start_example_1   :=time.tick_now()
-         answer_example_1   =solve_1(example_1)
-         duration_example_1+=time.tick_since(start_example_1)
+         start_example_1       :=time.tick_now()
+         answer_example_1       =solve_1(example_1)
+         durations_example_1[i] =time.tick_since(start_example_1)
       }
       when DO_INPUT_1{
-         start_input_1     :=time.tick_now()
-         answer_input_1     =solve_1(input)
-         duration_input_1  +=time.tick_since(start_input_1)
+         start_input_1         :=time.tick_now()
+         answer_input_1         =solve_1(input)
+         durations_input_1[i]   =time.tick_since(start_input_1)
       }
       when DO_EXAMPLE_2{
-         start_example_2   :=time.tick_now()
-         answer_example_2   =solve_2(example_2)
-         duration_example_2+=time.tick_since(start_example_2)
+         start_example_2       :=time.tick_now()
+         answer_example_2       =solve_2(example_2)
+         durations_example_2[i] =time.tick_since(start_example_2)
       }
       when DO_INPUT_2{
-         start_input_2     :=time.tick_now()
-         answer_input_2     =solve_2(input)
-         duration_input_2  +=time.tick_since(start_input_2)
+         start_input_2         :=time.tick_now()
+         answer_input_2         =solve_2(input)
+         durations_input_2[i]   =time.tick_since(start_input_2)
       }
    }
 
-   when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 9.4fms: %v",time.duration_milliseconds(duration_example_1)/DO_TIMING_REAL,answer_example_1)
-   when DO_INPUT_1   do fmt.printfln("Input   1 took % 9.4fms: %v",time.duration_milliseconds(duration_input_1  )/DO_TIMING_REAL,answer_input_1  )
-   when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 9.4fms: %v",time.duration_milliseconds(duration_example_2)/DO_TIMING_REAL,answer_example_2)
-   when DO_INPUT_2   do fmt.printfln("Input   2 took % 9.4fms: %v",time.duration_milliseconds(duration_input_2  )/DO_TIMING_REAL,answer_input_2  )
+   when DO_EXAMPLE_1 do sort.quick_sort(durations_example_1[:])
+   when DO_INPUT_1   do sort.quick_sort(durations_input_1  [:])
+   when DO_EXAMPLE_2 do sort.quick_sort(durations_example_2[:])
+   when DO_INPUT_2   do sort.quick_sort(durations_input_2  [:])
+
+   when DO_TIMING==1{
+      when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs: %v",time.duration_microseconds(durations_example_1[0]),answer_example_1)
+      when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs: %v",time.duration_microseconds(durations_input_1  [0]),answer_input_1  )
+      when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 11.3fµs: %v",time.duration_microseconds(durations_example_2[0]),answer_example_2)
+      when DO_INPUT_2   do fmt.printfln("Input   2 took % 11.3fµs: %v",time.duration_microseconds(durations_input_2  [0]),answer_input_2  )
+   }else{
+      CUTOFF_START::DO_TIMING/10
+      CUTOFF_END  ::DO_TIMING*9/10+1
+      CUTOFF_COUNT::CUTOFF_END-CUTOFF_START
+
+      when DO_EXAMPLE_1 do average_example_1:=time.duration_microseconds(math.sum(durations_example_1[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+      when DO_INPUT_1   do average_input_1  :=time.duration_microseconds(math.sum(durations_input_1  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+      when DO_EXAMPLE_2 do average_example_2:=time.duration_microseconds(math.sum(durations_example_2[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+      when DO_INPUT_2   do average_input_2  :=time.duration_microseconds(math.sum(durations_input_2  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+
+      when DO_EXAMPLE_1 do min_example_1:=time.duration_microseconds(durations_example_1[CUTOFF_START])
+      when DO_INPUT_1   do min_input_1  :=time.duration_microseconds(durations_input_1  [CUTOFF_START])
+      when DO_EXAMPLE_2 do min_example_2:=time.duration_microseconds(durations_example_2[CUTOFF_START])
+      when DO_INPUT_2   do min_input_2  :=time.duration_microseconds(durations_input_2  [CUTOFF_START])
+
+      when DO_EXAMPLE_1 do max_example_1:=time.duration_microseconds(durations_example_1[CUTOFF_END-1])
+      when DO_INPUT_1   do max_input_1  :=time.duration_microseconds(durations_input_1  [CUTOFF_END-1])
+      when DO_EXAMPLE_2 do max_example_2:=time.duration_microseconds(durations_example_2[CUTOFF_END-1])
+      when DO_INPUT_2   do max_input_2  :=time.duration_microseconds(durations_input_2  [CUTOFF_END-1])
+
+      when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_example_1,average_example_1,max_example_1,answer_example_1)
+      when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_input_1  ,average_input_1  ,max_input_1  ,answer_input_1  )
+      when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_example_2,average_example_2,max_example_2,answer_example_2)
+      when DO_INPUT_2   do fmt.printfln("Input   2 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_input_2  ,average_input_2  ,max_input_2  ,answer_input_2  )
+   }
 }
