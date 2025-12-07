@@ -125,17 +125,34 @@ main::proc(){
    when DO_EXAMPLE_2 do sort.quick_sort(durations_example_2[:])
    when DO_INPUT_2   do sort.quick_sort(durations_input_2  [:])
 
-   CUTOFF_START::DO_TIMING  /10
-   CUTOFF_END  ::DO_TIMING*9/10
-   CUTOFF_COUNT::CUTOFF_END-CUTOFF_START
+   when DO_TIMING==1{
+      when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs: %v",time.duration_microseconds(durations_example_1[0]),answer_example_1)
+      when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs: %v",time.duration_microseconds(durations_input_1  [0]),answer_input_1  )
+      when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 11.3fµs: %v",time.duration_microseconds(durations_example_2[0]),answer_example_2)
+      when DO_INPUT_2   do fmt.printfln("Input   2 took % 11.3fµs: %v",time.duration_microseconds(durations_input_2  [0]),answer_input_2  )
+   }else{
+      CUTOFF_START::DO_TIMING/10
+      CUTOFF_END  ::DO_TIMING*9/10+1
+      CUTOFF_COUNT::CUTOFF_END-CUTOFF_START
 
-   when DO_EXAMPLE_1 do duration_example_1:=durations_example_1[0] when DO_TIMING==1 else math.sum(durations_example_1[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
-   when DO_INPUT_1   do duration_input_1  :=durations_input_1  [0] when DO_TIMING==1 else math.sum(durations_input_1  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
-   when DO_EXAMPLE_2 do duration_example_2:=durations_example_2[0] when DO_TIMING==1 else math.sum(durations_example_2[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
-   when DO_INPUT_2   do duration_input_2  :=durations_input_2  [0] when DO_TIMING==1 else math.sum(durations_input_2  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT
+      when DO_EXAMPLE_1 do average_example_1:=time.duration_microseconds(math.sum(durations_example_1[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+      when DO_INPUT_1   do average_input_1  :=time.duration_microseconds(math.sum(durations_input_1  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+      when DO_EXAMPLE_2 do average_example_2:=time.duration_microseconds(math.sum(durations_example_2[CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
+      when DO_INPUT_2   do average_input_2  :=time.duration_microseconds(math.sum(durations_input_2  [CUTOFF_START:CUTOFF_END])/CUTOFF_COUNT)
 
-   when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs: %v",time.duration_microseconds(duration_example_1),answer_example_1)
-   when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs: %v",time.duration_microseconds(duration_input_1  ),answer_input_1  )
-   when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 11.3fµs: %v",time.duration_microseconds(duration_example_2),answer_example_2)
-   when DO_INPUT_2   do fmt.printfln("Input   2 took % 11.3fµs: %v",time.duration_microseconds(duration_input_2  ),answer_input_2  )
+      when DO_EXAMPLE_1 do min_example_1:=time.duration_microseconds(durations_example_1[CUTOFF_START])
+      when DO_INPUT_1   do min_input_1  :=time.duration_microseconds(durations_input_1  [CUTOFF_START])
+      when DO_EXAMPLE_2 do min_example_2:=time.duration_microseconds(durations_example_2[CUTOFF_START])
+      when DO_INPUT_2   do min_input_2  :=time.duration_microseconds(durations_input_2  [CUTOFF_START])
+
+      when DO_EXAMPLE_1 do max_example_1:=time.duration_microseconds(durations_example_1[CUTOFF_END-1])
+      when DO_INPUT_1   do max_input_1  :=time.duration_microseconds(durations_input_1  [CUTOFF_END-1])
+      when DO_EXAMPLE_2 do max_example_2:=time.duration_microseconds(durations_example_2[CUTOFF_END-1])
+      when DO_INPUT_2   do max_input_2  :=time.duration_microseconds(durations_input_2  [CUTOFF_END-1])
+
+      when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_example_1,average_example_1,max_example_1,answer_example_1)
+      when DO_INPUT_1   do fmt.printfln("Input   1 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_input_1  ,average_input_1  ,max_input_1  ,answer_input_1  )
+      when DO_EXAMPLE_2 do fmt.printfln("Example 2 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_example_2,average_example_2,max_example_2,answer_example_2)
+      when DO_INPUT_2   do fmt.printfln("Input   2 took % 11.3fµs - % 11.3fµs - % 11.3fµs: %v",min_input_2  ,average_input_2  ,max_input_2  ,answer_input_2  )
+   }
 }
