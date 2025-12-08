@@ -5,7 +5,7 @@ import "core:fmt"
 import "core:math"
 import "core:mem"
 import os "core:os/os2"
-import "core:sort"
+import "core:slice"
 import "core:strings"
 import "core:time"
 
@@ -92,8 +92,8 @@ main::proc(){
    DO_INPUT_1  ::true
    DO_EXAMPLE_2::true
    DO_INPUT_2  ::true
-   DO_WARMING  ::1000
-   DO_TIMING   ::10000
+   DO_WARMING  ::0
+   DO_TIMING   ::1
 
    example_1:=[]string{
       ".......S.......",
@@ -124,7 +124,7 @@ main::proc(){
    defer delete(input_raw,context.allocator)
    input_split:=strings.split_lines(string(input_raw),context.allocator)
    defer delete(input_split,context.allocator)
-   input:=input_split[:len(input_split)-1]
+   input:=input_split[:len(input_split)-1] if len(slice.last(input_split))==0 else input_split
 
    when DO_EXAMPLE_1 do answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
    when DO_INPUT_1   do answer_input_1  :intrinsics.type_proc_return_type(type_of(solve_1),0)
@@ -168,10 +168,10 @@ main::proc(){
       }
    }
 
-   when DO_EXAMPLE_1 do sort.quick_sort(durations_example_1[:])
-   when DO_INPUT_1   do sort.quick_sort(durations_input_1  [:])
-   when DO_EXAMPLE_2 do sort.quick_sort(durations_example_2[:])
-   when DO_INPUT_2   do sort.quick_sort(durations_input_2  [:])
+   when DO_EXAMPLE_1 do slice.sort(durations_example_1[:])
+   when DO_INPUT_1   do slice.sort(durations_input_1  [:])
+   when DO_EXAMPLE_2 do slice.sort(durations_example_2[:])
+   when DO_INPUT_2   do slice.sort(durations_input_2  [:])
 
    when DO_TIMING==1{
       when DO_EXAMPLE_1 do fmt.printfln("Example 1 took % 11.3fµs: %v",time.duration_microseconds(durations_example_1[0]),answer_example_1)
