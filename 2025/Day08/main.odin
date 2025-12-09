@@ -10,9 +10,11 @@ import "core:strings"
 import "core:time"
 
 import "core:strconv"
+import "core:slice/heap"
 
 solve_1::#force_no_inline proc(input:[]string)->(result:=0){
-   boxes:[dynamic][3]int
+   count:=len(input)
+   boxes:=make([dynamic][3]int,0,count)
    defer delete(boxes)
    for line in input{
       _z:=line
@@ -23,44 +25,53 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
       z:=strconv.parse_int(_z) or_continue
       append(&boxes,[3]int{x,y,z})
    }
-   connections:map[[2]int]int
+   max_connections:=len(input)<=20?10:1000
+   connections:=make([dynamic][3]int,0,max_connections+1)
    defer delete(connections)
-   for i in 0..<(10 if len(input)<=20 else 1000){
-      best:=max(int)
-      besti:=[2]int{-1,-1}
-      for l,_li in boxes{
-         for r,_ri in boxes{
-            li,ri:=_li,_ri
-            if li>ri do li,ri=ri,li
-            if li!=ri{
-               i:=[2]int{li,ri}
-               if i not_in connections{
-                  d:=(l-r)*(l-r)
-                  s:=d.x+d.y+d.z
-                  if s<best{
-                     best=s
-                     besti=i
-                  }
-               }
-            }
+   connections_less::proc(l,r:[3]int)->bool{
+      return l[0]<r[0]
+   }
+   for r,ri in boxes{
+      for l,li in boxes[:ri]{
+         d:=(l-r)*(l-r)
+         s:=d.x+d.y+d.z
+         if len(connections)<=max_connections{
+            append(&connections,[3]int{s,li,ri})
+            heap.push(connections[:],connections_less)
+         }else if s<connections[0][0]{
+            heap.pop(connections[:],connections_less)
+            connections[max_connections]=[3]int{s,li,ri}
+            heap.push(connections[:],connections_less)
          }
       }
-      connections[besti]=best
    }
-   results:[dynamic]int
+   max_results:=3
+   results:=make([dynamic]int,0,max_results+1)
    defer delete(results)
-   seen:=make([]bool,len(boxes))
+   results_less::proc(l,r:int)->bool{
+      return l>r
+   }
+   circuit:=make([dynamic]int,0,count)
+   defer delete(circuit)
+   seen:=make([]bool,count)
    defer delete(seen)
    for i in 0..<len(boxes){
       if !seen[i]{
-         circuit:[dynamic]int
-         defer delete(circuit)
+         clear(&circuit)
          append(&circuit,i)
          seen[i]=true
          for j:=0;j<len(circuit);j+=1{
             k:=circuit[j]
-            next:for connection in connections{
-               if k==connection[0]{
+            next:for connection in connections[1:]{
+               if k==connection[1]{
+                  for l in circuit{
+                     if l==connection[2]{
+                        continue next
+                     }
+                  }
+                  append(&circuit,connection[2])
+                  seen[connection[2]]=true
+               }else if k==connection[2]{
                   for l in circuit{
                      if l==connection[1]{
                         continue next
@@ -68,26 +79,26 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
                   }
                   append(&circuit,connection[1])
                   seen[connection[1]]=true
-               }else if k==connection[1]{
-                  for l in circuit{
-                     if l==connection[0]{
-                        continue next
-                     }
-                  }
-                  append(&circuit,connection[0])
-                  seen[connection[0]]=true
                }
             }
          }
-         append(&results,len(circuit))
+         size:=len(circuit)
+         if len(results)<=max_results{
+            append(&results,size)
+            heap.push(results[:],results_less)
+         }else if size>results[0]{
+            heap.pop(results[:],results_less)
+            results[max_results]=size
+            heap.push(results[:],results_less)
+         }
       }
    }
-   slice.reverse_sort(results[:])
-   return results[0]*results[1]*results[2]
+   return results[1]*results[2]*results[3]
 }
 
 solve_2::#force_no_inline proc(input:[]string)->(result:=0){
-   boxes:[dynamic][3]int
+   count:=len(input)
+   boxes:=make([dynamic][3]int,0,count)
    defer delete(boxes)
    for line in input{
       _z:=line
