@@ -9,3 +9,4 @@ x64/
 __pycache__/
 input
 2023/Day09/consteval.cpp
+2025/Day10_z3_bindings/libz3.*
