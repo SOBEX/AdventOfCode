@@ -6,7 +6,11 @@ x64/
 *.vcxproj*
 *.code-workspace
 
-__pycache__/
 input
+*.exe
+
+__pycache__/
+Leaderboards/*.json
+Leaderboards/*.txt
 2023/Day09/consteval.cpp
 2025/Day10_z3_bindings/libz3.*
