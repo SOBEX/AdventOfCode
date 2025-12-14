@@ -89,7 +89,7 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
       for v in strings.split_iterator(&last,","){
          append(&values,strconv.parse_int(v) or_continue)
       }
-      for i in 0..<length-1{
+      for i in 0..<length{
          min_value:=max(int)
          min_index:=-1
          for j in i..<length{
@@ -156,14 +156,15 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
                append(&good_buttons,button)
             }
          }
-         if len(good_buttons)>=2{
-            for button in good_buttons[:len(good_buttons)-1]{
+         fmt.println(i,len(states),len(good_buttons))
+         if len(good_buttons)>=3{
+            for button in good_buttons[:len(good_buttons)-2]{
                l:=len(states)
                for j in 0..<l{
                   state:=states[j]
-                  max_presses:=max(int)
+                  max_presses:=state.values[i]
                   for k in 0..<length{
-                     if button[k]>0{
+                     if button[k]!=0{
                         if state.values[k]<max_presses{
                            max_presses=state.values[k]
                         }
@@ -182,19 +183,77 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
                }
             }
          }
-         if len(good_buttons)>=1{
+         if len(good_buttons)>=2{
+            button_1:=good_buttons[len(good_buttons)-2]
+            button_2:=good_buttons[len(good_buttons)-1]
+            j:=0
+            l:=len(states)
+            for k in 0..<l{
+               needed_presses:=states[k].values[i]
+               max_presses_1:=needed_presses
+               max_presses_2:=needed_presses
+               for m in 0..<length{
+                  if button_1[m]!=0{
+                     if states[k].values[m]<max_presses_1{
+                        max_presses_1=states[k].values[m]
+                     }
+                  }
+                  if button_2[m]!=0{
+                     if states[k].values[m]<max_presses_2{
+                        max_presses_2=states[k].values[m]
+                     }
+                  }
+               }
+               min_presses_1:=needed_presses-max_presses_2
+               if min_presses_1<=max_presses_1{
+                  for presses_1 in min_presses_1..=max_presses_1{
+                     presses_2:=needed_presses-presses_1
+                     if j<=k{
+                        for m in 0..<length{
+                           states[k].values[m]-=button_1[m]*presses_1+button_2[m]*presses_2
+                        }
+                        states[k].presses+=needed_presses
+                        if j!=k{
+                           states[j],states[k]=states[k],states[j]
+                        }
+                        j+=1
+                     }else{
+                        new_values:=slice.clone(states[k].values)
+                        for m in 0..<length{
+                           new_values[m]-=button_1[m]*presses_1+button_2[m]*presses_2
+                        }
+                        new_presses:=states[k].presses+needed_presses
+                        append(&states,State{new_values,new_presses})
+                     }
+                  }
+               }
+            }
+            for state in states[j:l] do delete(state.values)
+            copy(states[j:],states[l:])
+            resize(&states,len(states)+j-l)
+         }else if len(good_buttons)>=1{
             button:=good_buttons[len(good_buttons)-1]
             j:=0
-            for k in 0..<len(states){
+            l:=len(states)
+            for k in 0..<l{
                presses:=states[k].values[i]
-               for j in 0..<length{
-                  states[k].values[j]-=button[j]*presses
+               valid:=true
+               for m in 0..<length{
+                  if states[k].values[m]<button[m]*presses{
+                     valid=false
+                     break
+                  }
                }
-               states[k].presses+=presses
-               if j!=k{
-                  states[j],states[k]=states[k],states[j]
+               if valid{
+                  for m in 0..<length{
+                     states[k].values[m]-=button[m]*presses
+                  }
+                  states[k].presses+=presses
+                  if j!=k{
+                     states[j],states[k]=states[k],states[j]
+                  }
+                  j+=1
                }
-               j+=1
             }
             for state in states[j:] do delete(state.values)
             resize(&states,j)
