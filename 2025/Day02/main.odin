@@ -11,6 +11,13 @@ import "core:time"
 
 import "core:strconv"
 
+can_halve::#force_inline proc(n:int)->bool{
+   b:[20]byte
+   s:=fmt.bprint(b[:],n)
+   h:=len(s)/2
+   return len(s)%%2==0&&s[:h]==s[h:]
+}
+
 solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    for line in input{
       full:=line
@@ -20,16 +27,29 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
          left:=strconv.parse_int(_left) or_continue
          right:=strconv.parse_int(_right) or_continue
          for n in left..=right{
-            s:=fmt.tprint(n)
-            defer delete(s,context.temp_allocator)
-            h:=len(s)/2
-            if len(s)%%2==0&&s[:h]==s[h:]{
+            if can_halve(n){
                result+=n
             }
          }
       }
    }
    return result
+}
+
+can_split::#force_inline proc(n:int)->bool{
+   b:[20]byte
+   s:=fmt.bprint(b[:],n)
+   next: for l in 1..=len(s)/2{
+      if len(s)%%l==0{
+         for i in 1..<len(s)/l{
+            if s[:l]!=s[i*l:(i+1)*l]{
+               continue next
+            }
+         }
+         return true
+      }
+   }
+   return false
 }
 
 solve_2::#force_no_inline proc(input:[]string)->(result:=0){
@@ -41,22 +61,8 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
          left:=strconv.parse_int(_left) or_continue
          right:=strconv.parse_int(_right) or_continue
          next: for n in left..=right{
-            s:=fmt.tprint(n)
-            defer delete(s,context.temp_allocator)
-            for l in 1..=len(s)/2{
-               if len(s)%%l==0{
-                  valid:=true
-                  for i in 1..<len(s)/l{
-                     if s[:l]!=s[i*l:(i+1)*l]{
-                        valid=false
-                        break
-                     }
-                  }
-                  if valid{
-                     result+=n
-                     continue next
-                  }
-               }
+            if can_split(n){
+               result+=n
             }
          }
       }
