@@ -30,82 +30,126 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    return result
 }
 
+less2::proc(l,r:[2]int)->bool{
+   if l[0]!=r[0] do return l[0]<r[0]
+   return l[1]<r[1]
+}
+order2::proc(l,r:[2]int)->slice.Ordering{
+   if l.x<r.x do return .Less
+   if l.x>r.x do return .Greater
+   if l.y<r.y do return .Less
+   if l.y>r.y do return .Greater
+   return .Equal
+}
+
+compress_indices::proc(is:[][2]int)->[][2]int{
+   slice.sort_by(is[:],less2)
+   unique_is:=slice.unique(is[:])
+   new_is:=make([][2]int,2*len(unique_is)+1)
+   new_length:=0
+   next:=min(int)
+   for i in unique_is{
+      i:=i[0]
+      if next<i{
+         new_is[new_length]={next,i-1}
+         new_length+=1
+      }
+      new_is[new_length]={i,i}
+      new_length+=1
+      next=i+1
+   }
+   new_is[new_length]={next,max(int)}
+   new_length+=1
+   return new_is[:new_length]
+}
+
 solve_2::#force_no_inline proc(input:[]string)->(result:=0){
-   cs:[dynamic][2]int
+   l:=len(input)
+   cs:=make([][2]int,l)
    defer delete(cs)
-   for line in input{
+   _xs:=make([][2]int,l)
+   defer delete(_xs)
+   _ys:=make([][2]int,l)
+   defer delete(_ys)
+   for line,i in input{
       _y:=line
       _x:=strings.split_iterator(&_y,",") or_continue
       x:=strconv.parse_int(_x) or_continue
       y:=strconv.parse_int(_y) or_continue
-      append(&cs,[2]int{x,y})
+      cs[i]={x,y}
+      _xs[i]={x,x}
+      _ys[i]={y,y}
    }
-   Turn::enum{Left,Right}
-   turn::proc(c1,c2,c3:[2]int)->Turn{
-      if c1.x==c2.x{
-         if c2.y>c1.y{
-            if c3.x<c2.x do return .Right
-            return .Left
+   xs:=compress_indices(_xs)
+   defer delete(xs)
+   ys:=compress_indices(_ys)
+   defer delete(ys)
+   is:=make([][2]int,l)
+   defer delete(is)
+   for c,i in cs{
+      is[i].x=slice.binary_search_by(xs,[2]int{c.x,c.x},order2) or_else panic("x not found")
+      is[i].y=slice.binary_search_by(ys,[2]int{c.y,c.y},order2) or_else panic("y not found")
+   }
+   width:=len(xs)
+   height:=len(ys)
+   board:=make([]bool,width*height)
+   defer delete(board)
+   prev:=is[len(is)-1]
+   for i in is{
+      if prev.x==i.x{
+         for dir:=prev.y<i.y?1:-1;prev.y!=i.y;prev.y+=dir{
+            board[prev.y*width+prev.x]=true
          }
-         if c3.x>c2.x do return .Right
-         return .Left
+      }else{
+         for dir:=prev.x<i.x?1:-1;prev.x!=i.x;prev.x+=dir{
+            board[prev.y*width+prev.x]=true
+         }
       }
-      if c2.x>c1.x{
-         if c3.y>c2.y do return .Right
-         return .Left
+   }
+   queue:[dynamic][2]int
+   defer delete(queue)
+   append(&queue,[2]int{0,0})
+   for len(queue)>0{
+      i:=pop(&queue)
+      board[i.y*width+i.x]=true
+      if 0<=i.x-1&&!board[i.y*width+(i.x-1)] do append(&queue,[2]int{i.x-1,i.y})
+      if i.x+1<width&&!board[i.y*width+(i.x+1)] do append(&queue,[2]int{i.x+1,i.y})
+      if 0<=i.y-1&&!board[(i.y-1)*width+i.x] do append(&queue,[2]int{i.x,i.y-1})
+      if i.y+1<height&&!board[(i.y+1)*width+i.x] do append(&queue,[2]int{i.x,i.y+1})
+   }
+   prev=is[len(is)-1]
+   for i in is{
+      if prev.x==i.x{
+         for dir:=prev.y<i.y?1:-1;prev.y!=i.y;prev.y+=dir{
+            board[prev.y*width+prev.x]=false
+         }
+      }else{
+         for dir:=prev.x<i.x?1:-1;prev.x!=i.x;prev.x+=dir{
+            board[prev.y*width+prev.x]=false
+         }
       }
-      if c3.y<c2.y do return .Right
-      return .Left
    }
-   right_count:=0
-   pprev:=cs[len(cs)-2]
-   prev:=cs[len(cs)-1]
-   for c in cs{
-      t:=turn(pprev,prev,c)
-      right_count+=t==.Right?1:-1
-      pprev=prev
-      prev=c
-   }
-   direction:Turn
-        if right_count== 4 do direction=.Right
-   else if right_count==-4 do direction=.Left
-   else do fmt.eprintln("invalid amount of turns not 4 or -4",right_count)
-   for r,ri in cs{
-      for l,li in cs[:ri]{
+   for r,ri in is{
+      skip: for l,li in is[:ri]{
          mins:=[2]int{min(l.x,r.x),min(l.y,r.y)}
          maxs:=[2]int{max(l.x,r.x),max(l.y,r.y)}
-         s:=(maxs.x-mins.x+1)*(maxs.y-mins.y+1)
-         ing_bad: if s>result{
-            if ri-li==2{
-               m:=cs[li+1]
-               if turn(l,m,r)!=direction{
-                  break ing_bad
-               }
-            }else if li+len(cs)-ri==2{
-               m:=cs[(ri+1)%%len(cs)]
-               if turn(l,m,r)!=direction{
-                  break ing_bad
-               }
-            }
-            for c in cs{
-               if mins.x<c.x&&c.x<maxs.x&&mins.y<c.y&&c.y<maxs.y{
-                  break ing_bad
-               }
-            }
-            prev:=cs[len(cs)-1]
-            for c in cs{
-               if c.x==prev.x{
-                  if mins.x<c.x&&c.x<maxs.x&&min(c.y,prev.y)<maxs.y&&mins.y<max(c.y,prev.y){
-                     break ing_bad
-                  }
-               }else{
-                  if mins.y<c.y&&c.y<maxs.y&&min(c.x,prev.x)<maxs.x&&mins.x<max(c.x,prev.x){
-                     break ing_bad
+         top:=board[mins.y*width+mins.x:mins.y*width+maxs.x+1]
+         if slice.all_of(top,false){
+            if mins.y+1<=maxs.y{
+               for y in mins.y+1..=maxs.y{
+                  if !slice.equal(top,board[y*width+mins.x:y*width+maxs.x+1]){
+                     continue skip
                   }
                }
-               prev=c
             }
-            result=s
+            l:=cs[li]
+            r:=cs[ri]
+            mins:=[2]int{min(l.x,r.x),min(l.y,r.y)}
+            maxs:=[2]int{max(l.x,r.x),max(l.y,r.y)}
+            score:=(maxs.x-mins.x+1)*(maxs.y-mins.y+1)
+            if score>result{
+               result=score
+            }
          }
       }
    }
@@ -152,17 +196,16 @@ main::proc(){
    DO_WARMING  ::0
    DO_TIMING   ::1
 
-      example_1:=[]string{
-         "7,1",
-         "11,1",
-         "11,7",
-         "9,7",
-         "9,5",
-         "2,5",
-         "2,3",
-         "7,3"
-      }
-
+   example_1:=[]string{
+      "7,1",
+      "11,1",
+      "11,7",
+      "9,7",
+      "9,5",
+      "2,5",
+      "2,3",
+      "7,3"
+   }
    example_2:=example_1
 
    input_raw,err:=os.read_entire_file("input",context.allocator)
