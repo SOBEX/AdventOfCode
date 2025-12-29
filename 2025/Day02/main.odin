@@ -11,14 +11,56 @@ import "core:time"
 
 import "core:strconv"
 
-can_halve::#force_inline proc(n:int)->bool{
-   b:[20]byte
-   s:=fmt.bprint(b[:],n)
-   h:=len(s)/2
-   return len(s)%%2==0&&s[:h]==s[h:]
+lengths:=[]int{
+                    -1,
+                     9,
+                    99,
+                   999,
+                  9999,
+                 99999,
+                999999,
+               9999999,
+              99999999,
+             999999999,
+            9999999999,
+           99999999999,
+          999999999999,
+         9999999999999,
+        99999999999999,
+       999999999999999,
+      9999999999999999,
+     99999999999999999,
+    999999999999999999,
+   max(int)
+}
+length::#force_inline proc(n:int)->int{
+   result,_:=slice.binary_search(lengths,n)
+   return result
 }
 
-solve_1::#force_no_inline proc(input:[]string)->(result:=0){
+halfs:=[]int{
+                     1,
+                    11,
+                   101,
+                  1001,
+                 10001,
+                100001,
+               1000001,
+              10000001,
+             100000001,
+            1000000001,
+           10000000001,
+          100000000001,
+         1000000000001,
+        10000000000001,
+       100000000000001,
+      1000000000000001,
+     10000000000000001,
+    100000000000000001,
+   1000000000000000001
+}
+
+solve_1::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    for line in input{
       full:=line
       for part in strings.split_iterator(&full,","){
@@ -26,9 +68,51 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
          _left:=strings.split_iterator(&_right,"-") or_continue
          left:=strconv.parse_int(_left) or_continue
          right:=strconv.parse_int(_right) or_continue
-         for n in left..=right{
-            if can_halve(n){
-               result+=n
+         llen:=length(left)
+         rlen:=length(right)
+         if llen==rlen{
+            if llen%%2==0{
+               step:=halfs[llen/2]
+               over:=left%%step
+               if over!=0 do left+=step-over
+               for ;left<=right;left+=step{
+                  result+=left
+               }
+            }
+         }else{
+            if llen%%2==0{
+               step:=halfs[llen/2]
+               over:=left%%step
+               if over!=0 do left+=step-over
+               for ;left<=lengths[llen];left+=step{
+                  result+=left
+               }
+            }
+            llen+=1
+            for llen<rlen{
+               left=lengths[llen-1]+1
+               if llen%%2==0{
+                  step:=halfs[llen/2]
+                  over:=left%%step
+                  left-=over
+                  if length(left)<llen do left+=step
+                  for ;left<=lengths[llen];left+=step{
+                     result+=left
+                  }
+               }
+               llen+=1
+            }
+            if llen%%2==0{
+               left=lengths[llen-1]+1
+               if llen%%2==0{
+                  step:=halfs[llen/2]
+                  over:=left%%step
+                  left-=over
+                  if length(left)<llen do left+=step
+                  for ;left<=right;left+=step{
+                     result+=left
+                  }
+               }
             }
          }
       }
@@ -36,23 +120,29 @@ solve_1::#force_no_inline proc(input:[]string)->(result:=0){
    return result
 }
 
-can_split::#force_inline proc(n:int)->bool{
-   b:[20]byte
-   s:=fmt.bprint(b[:],n)
-   next: for l in 1..=len(s)/2{
-      if len(s)%%l==0{
-         for i in 1..<len(s)/l{
-            if s[:l]!=s[i*l:(i+1)*l]{
-               continue next
-            }
-         }
-         return true
-      }
-   }
-   return false
+fulls:=[]int{
+                     0,
+                    10,
+                   100,
+                  1000,
+                 10000,
+                100000,
+               1000000,
+              10000000,
+             100000000,
+            1000000000,
+           10000000000,
+          100000000000,
+         1000000000000,
+        10000000000000,
+       100000000000000,
+      1000000000000000,
+     10000000000000000,
+    100000000000000000,
+   1000000000000000000
 }
 
-solve_2::#force_no_inline proc(input:[]string)->(result:=0){
+solve_2::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    for line in input{
       full:=line
       for part in strings.split_iterator(&full,","){
@@ -60,9 +150,22 @@ solve_2::#force_no_inline proc(input:[]string)->(result:=0){
          _left:=strings.split_iterator(&_right,"-") or_continue
          left:=strconv.parse_int(_left) or_continue
          right:=strconv.parse_int(_right) or_continue
-         next: for n in left..=right{
-            if can_split(n){
-               result+=n
+         success: for n in left..=right{
+            ln:=length(n)
+            failure: for l:=ln/2;l>=1;l-=1{
+               if ln%%l==0{
+                  step:=fulls[l]
+                  bottom:=n%%step
+                  remaining:=n
+                  for i in 1..<ln/l{
+                     remaining/=step
+                     if bottom!=remaining%%step{
+                        continue failure
+                     }
+                  }
+                  result+=n
+                  continue success
+               }
             }
          }
       }
@@ -126,45 +229,63 @@ main::proc(){
    defer delete(input_split,context.allocator)
    input:=input_split[:len(input_split)-1] if len(slice.last(input_split))==0 else input_split
 
-   when DO_EXAMPLE_1 do answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
-   when DO_INPUT_1   do answer_input_1  :intrinsics.type_proc_return_type(type_of(solve_1),0)
-   when DO_EXAMPLE_2 do answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
-   when DO_INPUT_2   do answer_input_2  :intrinsics.type_proc_return_type(type_of(solve_2),0)
-
-   when DO_WARMING>0{
-      for _ in 0..<DO_WARMING{
-         when DO_EXAMPLE_1 do answer_example_1=solve_1(example_1)
-         when DO_INPUT_1   do answer_input_1  =solve_1(input)
-         when DO_EXAMPLE_2 do answer_example_2=solve_2(example_2)
-         when DO_INPUT_2   do answer_input_2  =solve_2(input)
+   when DO_EXAMPLE_1{
+      answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+      durations_example_1:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_example_1=solve_1(example_1)
+         }
+      }
+      for i in 0..<DO_TIMING{
+         start_example_1:=time.tick_now()
+         answer_example_1=solve_1(example_1)
+         durations_example_1[i]=time.tick_since(start_example_1)
       }
    }
 
-   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING]time.Duration
-   when DO_INPUT_1   do durations_input_1  :[DO_TIMING]time.Duration
-   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING]time.Duration
-   when DO_INPUT_2   do durations_input_2  :[DO_TIMING]time.Duration
+   when DO_INPUT_1{
+      answer_input_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+      durations_input_1:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_input_1=solve_1(input)
+         }
+      }
+      for i in 0..<DO_TIMING{
+         start_input_1:=time.tick_now()
+         answer_input_1=solve_1(input)
+         durations_input_1[i]=time.tick_since(start_input_1)
+      }
+   }
 
-   for i in 0..<DO_TIMING{
-      when DO_EXAMPLE_1{
-         start_example_1       :=time.tick_now()
-         answer_example_1       =solve_1(example_1)
-         durations_example_1[i] =time.tick_since(start_example_1)
+   when DO_EXAMPLE_2{
+      answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+      durations_example_2:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_example_2=solve_2(example_2)
+         }
       }
-      when DO_INPUT_1{
-         start_input_1         :=time.tick_now()
-         answer_input_1         =solve_1(input)
-         durations_input_1[i]   =time.tick_since(start_input_1)
+      for i in 0..<DO_TIMING{
+         start_example_2:=time.tick_now()
+         answer_example_2=solve_2(example_2)
+         durations_example_2[i]=time.tick_since(start_example_2)
       }
-      when DO_EXAMPLE_2{
-         start_example_2       :=time.tick_now()
-         answer_example_2       =solve_2(example_2)
-         durations_example_2[i] =time.tick_since(start_example_2)
+   }
+
+   when DO_INPUT_2{
+      answer_input_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+      durations_input_2:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_input_2=solve_2(input)
+         }
       }
-      when DO_INPUT_2{
-         start_input_2         :=time.tick_now()
-         answer_input_2         =solve_2(input)
-         durations_input_2[i]   =time.tick_since(start_input_2)
+      for i in 0..<DO_TIMING{
+         start_input_2:=time.tick_now()
+         answer_input_2=solve_2(input)
+         durations_input_2[i]=time.tick_since(start_input_2)
       }
    }
 
