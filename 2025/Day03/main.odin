@@ -13,22 +13,25 @@ UNSET:u8:0
 
 solve_1::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    for line in input{
-      li:=0
       l:=UNSET
-      for i in 0..<len(line)-1{
+      r:=UNSET
+      i:=0
+      for ;i<len(line)-1;i+=1{
          c:=line[i]
          if c=='9'{
-            li=i
             l='9'
+            r=UNSET
+            i+=1
             break
          }
          if c>l{
-            li=i
             l=c
+            r=UNSET
+         }else if c>r{
+            r=c
          }
       }
-      r:=UNSET
-      for i in li+1..<len(line){
+      for ;i<len(line);i+=1{
          c:=line[i]
          if c=='9'{
             r='9'
