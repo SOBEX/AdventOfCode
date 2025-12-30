@@ -9,34 +9,92 @@ import "core:slice"
 import "core:strings"
 import "core:time"
 
-solve_1::#force_no_inline proc(input:[]string)->(result:=0){
+UNSET:u8:0
+
+solve_1::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    for line in input{
-      best:=0
-      for l in 0..<len(line)-1{
-         for r in l+1..<len(line){
-            score:=int(line[l]-'0')*10+int(line[r]-'0')
-            if score>best{
-               best=score
-            }
+      li:=0
+      l:=UNSET
+      for i in 0..<len(line)-1{
+         c:=line[i]
+         if c=='9'{
+            li=i
+            l='9'
+            break
+         }
+         if c>l{
+            li=i
+            l=c
          }
       }
-      result+=best
+      r:=UNSET
+      for i in li+1..<len(line){
+         c:=line[i]
+         if c=='9'{
+            r='9'
+            break
+         }
+         if c>r{
+            r=c
+         }
+      }
+      result+=int(l-'0')*10+int(r-'0')
    }
    return result
 }
 
-solve_2::#force_no_inline proc(input:[]string)->(result:=0){
+solve_2::#force_no_inline proc(input:[]string)->(result:=0)#no_bounds_check{
    for line in input{
-      number:=transmute([]u8)line
-      best:=0
-      l:=len(line)
-      index:=slice.max_index(number[0:l-11]) or_continue
-      score:=int(number[index]-'0')
-      for i in 1..<12{
-         index=index+1+slice.max_index(number[index+1:l-(11-i)])
-         score=score*10+int(number[index]-'0')
+      is:[11]int
+      cs:[12]u8
+      for i in 0..<len(line)-11{
+         c:=line[i]
+         if c=='9'{
+            is[0]=i
+            cs[0]='9'
+            break
+         }
+         if c>cs[0]{
+            is[0]=i
+            cs[0]=c
+         }
       }
-      result+=score
+      #unroll for j in 1..<11{
+         for i in is[j-1]+1..<len(line)-11+j{
+            c:=line[i]
+            if c=='9'{
+               is[j]=i
+               cs[j]='9'
+               break
+            }
+            if c>cs[j]{
+               is[j]=i
+               cs[j]=c
+            }
+         }
+      }
+      for i in is[10]+1..<len(line){
+         c:=line[i]
+         if c=='9'{
+            cs[11]='9'
+            break
+         }
+         if c>cs[11]{
+            cs[11]=c
+         }
+      }
+      result+=int(cs[ 0]-'0')*100000000000+
+              int(cs[ 1]-'0')*10000000000+
+              int(cs[ 2]-'0')*1000000000+
+              int(cs[ 3]-'0')*100000000+
+              int(cs[ 4]-'0')*10000000+
+              int(cs[ 5]-'0')*1000000+
+              int(cs[ 6]-'0')*100000+
+              int(cs[ 7]-'0')*10000+
+              int(cs[ 8]-'0')*1000+
+              int(cs[ 9]-'0')*100+
+              int(cs[10]-'0')*10+
+              int(cs[11]-'0')
    }
    return result
 }
@@ -100,45 +158,63 @@ main::proc(){
    defer delete(input_split,context.allocator)
    input:=input_split[:len(input_split)-1] if len(slice.last(input_split))==0 else input_split
 
-   when DO_EXAMPLE_1 do answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
-   when DO_INPUT_1   do answer_input_1  :intrinsics.type_proc_return_type(type_of(solve_1),0)
-   when DO_EXAMPLE_2 do answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
-   when DO_INPUT_2   do answer_input_2  :intrinsics.type_proc_return_type(type_of(solve_2),0)
-
-   when DO_WARMING>0{
-      for _ in 0..<DO_WARMING{
-         when DO_EXAMPLE_1 do answer_example_1=solve_1(example_1)
-         when DO_INPUT_1   do answer_input_1  =solve_1(input)
-         when DO_EXAMPLE_2 do answer_example_2=solve_2(example_2)
-         when DO_INPUT_2   do answer_input_2  =solve_2(input)
+   when DO_EXAMPLE_1{
+      answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+      durations_example_1:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_example_1=solve_1(example_1)
+         }
+      }
+      for i in 0..<DO_TIMING{
+         start_example_1:=time.tick_now()
+         answer_example_1=solve_1(example_1)
+         durations_example_1[i]=time.tick_since(start_example_1)
       }
    }
 
-   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING]time.Duration
-   when DO_INPUT_1   do durations_input_1  :[DO_TIMING]time.Duration
-   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING]time.Duration
-   when DO_INPUT_2   do durations_input_2  :[DO_TIMING]time.Duration
+   when DO_INPUT_1{
+      answer_input_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+      durations_input_1:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_input_1=solve_1(input)
+         }
+      }
+      for i in 0..<DO_TIMING{
+         start_input_1:=time.tick_now()
+         answer_input_1=solve_1(input)
+         durations_input_1[i]=time.tick_since(start_input_1)
+      }
+   }
 
-   for i in 0..<DO_TIMING{
-      when DO_EXAMPLE_1{
-         start_example_1       :=time.tick_now()
-         answer_example_1       =solve_1(example_1)
-         durations_example_1[i] =time.tick_since(start_example_1)
+   when DO_EXAMPLE_2{
+      answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+      durations_example_2:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_example_2=solve_2(example_2)
+         }
       }
-      when DO_INPUT_1{
-         start_input_1         :=time.tick_now()
-         answer_input_1         =solve_1(input)
-         durations_input_1[i]   =time.tick_since(start_input_1)
+      for i in 0..<DO_TIMING{
+         start_example_2:=time.tick_now()
+         answer_example_2=solve_2(example_2)
+         durations_example_2[i]=time.tick_since(start_example_2)
       }
-      when DO_EXAMPLE_2{
-         start_example_2       :=time.tick_now()
-         answer_example_2       =solve_2(example_2)
-         durations_example_2[i] =time.tick_since(start_example_2)
+   }
+
+   when DO_INPUT_2{
+      answer_input_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+      durations_input_2:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_input_2=solve_2(input)
+         }
       }
-      when DO_INPUT_2{
-         start_input_2         :=time.tick_now()
-         answer_input_2         =solve_2(input)
-         durations_input_2[i]   =time.tick_since(start_input_2)
+      for i in 0..<DO_TIMING{
+         start_input_2:=time.tick_now()
+         answer_input_2=solve_2(input)
+         durations_input_2[i]=time.tick_since(start_input_2)
       }
    }
 
