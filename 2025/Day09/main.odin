@@ -206,6 +206,7 @@ main::proc(){
       "2,3",
       "7,3"
    }
+
    example_2:=example_1
 
    input_raw,err:=os.read_entire_file("input",context.allocator)
@@ -218,45 +219,63 @@ main::proc(){
    defer delete(input_split,context.allocator)
    input:=input_split[:len(input_split)-1] if len(slice.last(input_split))==0 else input_split
 
-   when DO_EXAMPLE_1 do answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
-   when DO_INPUT_1   do answer_input_1  :intrinsics.type_proc_return_type(type_of(solve_1),0)
-   when DO_EXAMPLE_2 do answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
-   when DO_INPUT_2   do answer_input_2  :intrinsics.type_proc_return_type(type_of(solve_2),0)
-
-   when DO_WARMING>0{
-      for _ in 0..<DO_WARMING{
-         when DO_EXAMPLE_1 do answer_example_1=solve_1(example_1)
-         when DO_INPUT_1   do answer_input_1  =solve_1(input)
-         when DO_EXAMPLE_2 do answer_example_2=solve_2(example_2)
-         when DO_INPUT_2   do answer_input_2  =solve_2(input)
+   when DO_EXAMPLE_1{
+      answer_example_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+      durations_example_1:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_example_1=solve_1(example_1)
+         }
+      }
+      for i in 0..<DO_TIMING{
+         start_example_1:=time.tick_now()
+         answer_example_1=solve_1(example_1)
+         durations_example_1[i]=time.tick_since(start_example_1)
       }
    }
 
-   when DO_EXAMPLE_1 do durations_example_1:[DO_TIMING]time.Duration
-   when DO_INPUT_1   do durations_input_1  :[DO_TIMING]time.Duration
-   when DO_EXAMPLE_2 do durations_example_2:[DO_TIMING]time.Duration
-   when DO_INPUT_2   do durations_input_2  :[DO_TIMING]time.Duration
+   when DO_INPUT_1{
+      answer_input_1:intrinsics.type_proc_return_type(type_of(solve_1),0)
+      durations_input_1:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_input_1=solve_1(input)
+         }
+      }
+      for i in 0..<DO_TIMING{
+         start_input_1:=time.tick_now()
+         answer_input_1=solve_1(input)
+         durations_input_1[i]=time.tick_since(start_input_1)
+      }
+   }
 
-   for i in 0..<DO_TIMING{
-      when DO_EXAMPLE_1{
-         start_example_1       :=time.tick_now()
-         answer_example_1       =solve_1(example_1)
-         durations_example_1[i] =time.tick_since(start_example_1)
+   when DO_EXAMPLE_2{
+      answer_example_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+      durations_example_2:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_example_2=solve_2(example_2)
+         }
       }
-      when DO_INPUT_1{
-         start_input_1         :=time.tick_now()
-         answer_input_1         =solve_1(input)
-         durations_input_1[i]   =time.tick_since(start_input_1)
+      for i in 0..<DO_TIMING{
+         start_example_2:=time.tick_now()
+         answer_example_2=solve_2(example_2)
+         durations_example_2[i]=time.tick_since(start_example_2)
       }
-      when DO_EXAMPLE_2{
-         start_example_2       :=time.tick_now()
-         answer_example_2       =solve_2(example_2)
-         durations_example_2[i] =time.tick_since(start_example_2)
+   }
+
+   when DO_INPUT_2{
+      answer_input_2:intrinsics.type_proc_return_type(type_of(solve_2),0)
+      durations_input_2:[DO_TIMING]time.Duration
+      when DO_WARMING>0{
+         for _ in 0..<DO_WARMING{
+            answer_input_2=solve_2(input)
+         }
       }
-      when DO_INPUT_2{
-         start_input_2         :=time.tick_now()
-         answer_input_2         =solve_2(input)
-         durations_input_2[i]   =time.tick_since(start_input_2)
+      for i in 0..<DO_TIMING{
+         start_input_2:=time.tick_now()
+         answer_input_2=solve_2(input)
+         durations_input_2[i]=time.tick_since(start_input_2)
       }
    }
 
